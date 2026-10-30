@@ -8,7 +8,7 @@ if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
 endif()
 
-add_executable(OOP_Project
+add_executable(Student-Processor
         main.cpp
         failai.cpp
         utils.cpp
@@ -22,5 +22,5 @@ add_executable(OOP_Project
 )
 
 if(WIN32)
-    target_link_libraries(OOP_Project PRIVATE psapi)
+    target_link_libraries(Student-Processor PRIVATE psapi)
 endif()
