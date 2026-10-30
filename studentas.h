@@ -109,3 +109,11 @@ void skirstytiStudentus2Partition(Konteineris<Studentas<Konteineris>>& grupe,
 }
 
 #endif  // OOP_PROJECT_STUDENTAS_H
+
+
+/*~Studentas(){
+    var.clear();
+    pav.clear();
+    paz.clear();
+    egz = 0; rez = 0;
+*/
