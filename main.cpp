@@ -2,7 +2,8 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include <list>
+#include <fstream>
+#include <limits>
 #ifdef _WIN32
 #ifndef NOMINMAX
 #define NOMINMAX
@@ -113,9 +114,15 @@ int main() {
             }
         }
         else {
+
             std::string outputPavadinimas;
             std::cout << "Įveskite išvesties failo pavadinimą: ";
             std::cin >> outputPavadinimas;
+
+            if (outputPavadinimas == failoPavadinimas) {
+                std::cout << "Išvesties failas negali sutapti su įvesties failu!\n";
+                return 0;
+            }
             std::ofstream failas(outputPavadinimas + ".txt");
             if (!failas) {
                 std::cout << "Nepavyko atidaryti failo!\n";
