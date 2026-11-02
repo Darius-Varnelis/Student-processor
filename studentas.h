@@ -31,7 +31,18 @@ public:
     std::istream& skaitytiFaila(std::istream&, int ndKiekis);
     std::ostream& rasytiStudenta(std::ostream&, Statistika) const;
     void ivestiRanka(bool zinomas_sk, Rezimas rezimas,std::mt19937& gen, std::uniform_int_distribution<int>& pazymiu_dist);
-    
+
+    ~Studentas() {
+        vardas_.clear();
+        pavarde_.clear();
+        paz_.clear();
+        exam_ = 0; galutinis_ = 0;
+    };
+
+    Studentas(const Studentas&) = default;
+    Studentas& operator=(const Studentas&) = default;
+    Studentas(Studentas&&) noexcept = default;
+    Studentas& operator=(Studentas&&) noexcept = default;
 };
 void nuskaitytiStudentus(std::vector<Studentas>& grupe, const std::string& filename);
 
