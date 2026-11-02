@@ -18,8 +18,8 @@ Rezultatai testuPaleistuvas(int i, const Rusiuoti& rusiuoti, const Tvarka& tvark
 
 void testas(int i, int j, const std::string& pavadinimas, Rezultatai& rezultatai,
             Rusiuoti rusiuoti, Tvarka tvarka) {
-    std::vector<Studentas> grupe;          // after grouping: passing students (kietukai)
-    std::vector<Studentas> nuskriaustukai; // failing students
+    std::vector<Studentas> grupe;
+    std::vector<Studentas> nuskriaustukai;
 
     Timer apdorojimas;
     Timer t;
@@ -38,7 +38,7 @@ void testas(int i, int j, const std::string& pavadinimas, Rezultatai& rezultatai
     rezultatai.dalijimai.push_back(t.elapsed());
     std::cout << "  Dalijimas į dvi grupes: " << rezultatai.dalijimai[j] << " s\n";
 
-    t.reset();                              // this reset was missing
+    t.reset();
     rusiuotiStudentus(grupe, rusiuoti, tvarka);
     rusiuotiStudentus(nuskriaustukai, rusiuoti, tvarka);
     rezultatai.rusiavimai.push_back(t.elapsed());
