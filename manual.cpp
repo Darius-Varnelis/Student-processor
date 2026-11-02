@@ -9,7 +9,6 @@
 #include <sstream>
 using std::string;
 
-namespace pagalba {
 void rasytiAntraste(std::ostream& out, Statistika statistika) {
     out << std::left << std::setw(PLOTIS) << "Vardas" << "|";
     out << std::setw(utf8Plotis("Pavardė")) << "Pavardė" << "|";
@@ -21,7 +20,7 @@ void rasytiAntraste(std::ostream& out, Statistika statistika) {
         out << std::setw(PLOTIS) << "Galutinis (vidurkis)" << "|" << std::setw(PLOTIS) << "Galutinis (mediana)" << "|\n";
     }
 }
-}
+
 
 bool iSkaiciu(const string& tekstas, int& rezultatas) {
     try {
@@ -86,4 +85,36 @@ int nustatymai(const string& klausimas, const string& pasirinkimai) {
         i++;
     }
     return ivestiSk("Įveskite savo pasirinkimą (nuo 0 iki " + std::to_string(i - 1) + "): ", 0, i - 1);
+}
+
+void rasytiGrupe(std::ostream& out, const std::vector<Studentas>& grupe, Statistika statistika) {
+    rasytiAntraste(out, statistika);
+    for (const auto& st : grupe) {
+        st.rasytiStudenta(out, statistika);
+    }
+}
+
+void rankinisIvedimas(bool zinomas_sk, Statistika statistika, Rezimas rezimas, std::ostream& output, Rusiuoti rusiuoti, Tvarka tvarka) {
+    const auto seed = std::chrono::high_resolution_clock::now().time_since_epoch().count();
+    std::mt19937 gen(static_cast<std::mt19937::result_type>(seed));
+    std::uniform_int_distribution<int> pazymiu_dist(MIN_PAZ, MAX_PAZ);
+    std::vector<Studentas> grupe;
+    const int studkiekis = ivestiSk("Kiek yra studentų? ", 0, BE_RIBOS);
+    for (int i = 0; i < studkiekis; i++) {
+        Studentas st(zinomas_sk, rezimas, gen, pazymiu_dist);
+        st.skaiciuotiGalutini();
+        grupe.push_back(st);
+    }
+    rusiuotiStudentus(grupe,rusiuoti,tvarka);
+    rasytiGrupe(output, grupe, statistika);
+}
+
+void nuskaitytiIsFailo(const std::string& filename, Statistika statistika, std::ostream& output, Rusiuoti rusiuoti, Tvarka tvarka) {
+    std::vector<Studentas> grupe;
+    nuskaitytiStudentus(grupe, filename);
+    for (auto& st : grupe) {
+        st.skaiciuotiGalutini();
+    }
+    rusiuotiStudentus(grupe,rusiuoti,tvarka);
+    rasytiGrupe(output,grupe,statistika);
 }

@@ -11,15 +11,11 @@ void header(std::ostream& out) {
         << "Average file read time" << "|"
         << "Average final grade calculation time" << "|"
         << "Average sorting time" << "|"
-        << "Average grouping time (Original Method)" << "|"
-        << "Average grouping time (Method 1)" << "|"
-        << "Average grouping time (Method 2)" << "|"
-        << "Average grouping time (Method 1 with partition)" << "|"
-        << "Average grouping time (Method 2 with partition)" << "|"
+        << "Average grouping time" << "|"
         << "Average failed student output time" << "|"
         << "Average passing student output time" << "|"
         << "Average processing time" << "|\n";
-    out << "|---|---|---|---|---|---|---|---|---|---|---|---|\n";
+    out << "|---|---|---|---|---|---|---|---|\n";
 }
 
 void eilute(std::ostream& out, const Rezultatai& rezultatai) {
@@ -27,11 +23,7 @@ void eilute(std::ostream& out, const Rezultatai& rezultatai) {
         << vidurkis(rezultatai.nuskaitymai) << "s|"
         << vidurkis(rezultatai.galutiniai) << "s|"
         << vidurkis(rezultatai.rusiavimai) << "s|"
-        << vidurkis(rezultatai.dalijimaiMano) << "s|"
-        << vidurkis(rezultatai.dalijimai1) << "s|"
-        << vidurkis(rezultatai.dalijimai2) << "s|"
-        << vidurkis(rezultatai.dalijimai3) << "s|"
-        << vidurkis(rezultatai.dalijimai4) << "s|"
+        << vidurkis(rezultatai.dalijimai) << "s|"
         << vidurkis(rezultatai.isvedimaiNuskriaustuku) << "s|"
         << vidurkis(rezultatai.isvedimaiKietuku) << "s|"
         << vidurkis(rezultatai.bendri) << "s|\n";

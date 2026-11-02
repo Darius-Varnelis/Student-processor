@@ -1,5 +1,5 @@
-#ifndef OOP_PROJECT_TIMER_H
-#define OOP_PROJECT_TIMER_H
+#ifndef STUDENT_PROCESSOR_TIMER_H
+#define STUDENT_PROCESSOR_TIMER_H
 
 #include <chrono>
 
@@ -19,4 +19,4 @@ private:
     std::chrono::steady_clock::time_point start_;
 };
 
-#endif  // OOP_PROJECT_TIMER_H
+#endif  // STUDENT_PROCESSOR_TIMER_H

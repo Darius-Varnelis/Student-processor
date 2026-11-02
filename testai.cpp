@@ -3,73 +3,58 @@
 #include "utils.h"
 #include "studentas.h"
 constexpr int KARTAI = 5;
-Rezultatai testuPaleistuvas(int i, const Struktura& struktura, const Rusiuoti& rusiuoti, const Tvarka& tvarka) {
+Rezultatai testuPaleistuvas(int i, const Rusiuoti& rusiuoti, const Tvarka& tvarka) {
     Rezultatai rezultatai;
     rezultatai.dydis = i;
     std::string fileName = failoPavadinimas("kursiokai", i);
     std::cout << "Apdorojamas failas " << fileName << "\n";
     for (int j = 0; j < KARTAI; j++) {
         std::cout << j + 1 << "-oji iteracija\n";
-        if (struktura == Struktura::Vector) {
-            testas<std::vector>(i, j, fileName, rezultatai, rusiuoti, tvarka);
-        } else {
-            testas<std::list>(i, j, fileName, rezultatai, rusiuoti, tvarka);
-        }
+        testas(i, j, fileName, rezultatai, rusiuoti, tvarka);
     }
     return rezultatai;
 }
 
-int vienasTestas(const std::string& strategija, const std::string& failas) {
 
+void testas(int i, int j, const std::string& pavadinimas, Rezultatai& rezultatai, Rusiuoti rusiuoti, Tvarka tvarka) {
+    std::vector<Studentas> grupe;
+    Timer apdorojimas;
+    Timer t;
+    nuskaitytiStudentus(grupe, pavadinimas);
+    rezultatai.nuskaitymai.push_back(t.elapsed());
+    std::cout << "  Nuskaitymas: " << rezultatai.nuskaitymai[j] << " s\n";
 
-    std::vector<Studentas<std::vector>> grupe;
-    nuskaitytiStudentus(grupe, failas);
-    std::vector<Studentas<std::vector>> kietukai;
-    std::vector<Studentas<std::vector>> nuskriaustukai;
-    std::size_t pries = dabartineAtmintis();
-    std::size_t pikasPries = pikineAtmintis();
-
-    if (strategija == "2partition") {
-       skirstytiStudentus2Partition(grupe, nuskriaustukai);
+    t.reset();
+    for (auto& st : grupe) {
+        st.skaiciuotiGalutini();
     }
-    else if (strategija == "move") {
-        skirstytiStudentusMano(grupe, nuskriaustukai, kietukai);
-    }
-    else if (strategija == "1partition") {
-        skirstytiStudentus1Partition(grupe, nuskriaustukai, kietukai);
-    }
-    else if (strategija == "1") {
-        skirstytiStudentus1(grupe,nuskriaustukai, kietukai);
-    }
-    else if (strategija == "2") {
-        skirstytiStudentus2(grupe,nuskriaustukai);
-    }
+    rezultatai.galutiniai.push_back(t.elapsed());
+    std::cout << "  Galutinių skaičiavimas: " << rezultatai.galutiniai[j] << " s\n";
 
-    std::size_t pikasPo = pikineAtmintis();
-    std::cout << strategija << ',' << failas << ','
-          << pries / (1024 * 1024) << ','
-          << pikasPries / (1024 * 1024) << ','
-          << pikasPo / (1024 * 1024) << '\n';
-    return 0;
-}
+    std::vector<Studentas> nuskriaustukai;
+    t.reset();
+    skirstytiStudentus(grupe, nuskriaustukai);
+    rezultatai.dalijimai.push_back(t.elapsed());
+    grupe.clear();
+    std::cout << "  Dalijimas į dvi grupes: " << rezultatai.dalijimai[j] << " s\n";
 
 
-void paleistiAtmintiesTestus(const std::string& exe) {
-    std::vector<std::string> strategijos = {"move", "1", "2", "1partition", "2partition"};
-    std::vector<std::string> failai = {"kursiokai10000000.txt"};
+    rusiuotiStudentus(grupe, rusiuoti, tvarka);
+    rusiuotiStudentus(nuskriaustukai, rusiuoti, tvarka);
+    rezultatai.rusiavimai.push_back(t.elapsed());
+    std::cout << "  Rūšiavimas: " << rezultatai.rusiavimai[j] << " s\n";
 
-    for (const auto& f : failai)
-        for (const auto& s : strategijos)
-            for (int i = 0; i < KARTAI; ++i) {
-#ifdef _WIN32
+    t.reset();
+    std::ofstream outn(failoPavadinimas("nuskriaustukai", i));
+    rasytiGrupe( outn, nuskriaustukai, Statistika::Vidurkis);
+    rezultatai.isvedimaiNuskriaustuku.push_back(t.elapsed());
+    std::cout << "  Nuskriaustukų išvedimas: " << rezultatai.isvedimaiNuskriaustuku[j] << " s\n";
 
-                std::string cmd = "\"\"" + exe + "\" --testas " + s + " " + f
-                                + " >> rezultatai.txt\"";
-#else
-                std::string cmd = "\"" + exe + "\" --testas " + s + " " + f
-                                + " >> rezultatai.txt";
-#endif
-                std::system(cmd.c_str());
-            }
-    std::cout << "Baigta, žr. rezultatai.txt\n";
+    t.reset();
+    std::ofstream outk(failoPavadinimas("kietukai", i));
+    rasytiGrupe( outk, nuskriaustukai, Statistika::Vidurkis);
+    rezultatai.isvedimaiKietuku.push_back(t.elapsed());
+    std::cout << "  Kietukų išvedimas: " << rezultatai.isvedimaiKietuku[j] << " s\n";
+    rezultatai.bendri.push_back(apdorojimas.elapsed());
+    std::cout << "  Viso apdorojimas: " << rezultatai.bendri[j] << " s\n\n";
 }

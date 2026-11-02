@@ -19,6 +19,7 @@ add_executable(Student-Processor
         nustatymai.h
         testai.cpp
         testai.h
+        studentas.cpp
 )
 
 if(WIN32)

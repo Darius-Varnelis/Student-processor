@@ -6,7 +6,7 @@
 
 struct Rezultatai {
     int dydis;
-    std::vector<double> nuskaitymai, galutiniai, rusiavimai, dalijimaiMano, dalijimai1, dalijimai2, dalijimai3, dalijimai4, isvedimaiNuskriaustuku, isvedimaiKietuku,
+    std::vector<double> nuskaitymai, galutiniai, rusiavimai, dalijimai, isvedimaiNuskriaustuku, isvedimaiKietuku,
         bendri;
 };
 void spausdintiLentele(const std::string& filename, const std::vector<Rezultatai>& visi);

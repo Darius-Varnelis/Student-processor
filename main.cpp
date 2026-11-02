@@ -18,24 +18,18 @@
 #include "results.h"
 #include "testai.h"
 
-int main(int argc, char* argv[]) {
-
+int main() {
 #ifdef _WIN32
     SetConsoleOutputCP(CP_UTF8);
     SetConsoleCP(CP_UTF8);
 #endif
 
-    if (argc == 4 && std::string(argv[1]) == "--testas")
-        return vienasTestas(argv[2], argv[3]);
 
     std::cout << std::fixed << std::setprecision(3);
     auto rezimas = static_cast<Rezimas>(nustatymai(
         "Koks programos rėžimas?",
-        "Studentų įvedimas ranka;Studentų nuskaitymas iš failo;Automatinis generavimas;Programos greitumo testavimas;Atminties naudojimo testas;"));
-    if (rezimas == Rezimas::Atmintis) {
-        paleistiAtmintiesTestus(argv[0]);
-        return 0;
-    }
+        "Studentų įvedimas ranka;Studentų nuskaitymas iš failo;Automatinis generavimas;Programos greitumo testavimas;"));
+
     auto rusiuoti =
         static_cast<Rusiuoti>(nustatymai("Pagal ką rūšiuoti išvesties failus?", "Vardą;Pavardę;Galutinį balą"));
     auto tvarka =
@@ -57,16 +51,11 @@ int main(int argc, char* argv[]) {
         std::vector<Rezultatai> visiList;
         for (int i = MINFAILAS; i <= MAXFAILAS; i *= 10) {
             std::cout << "Atliekamas testas su Vector.\n";
-            Rezultatai rezultatai = testuPaleistuvas(i, Struktura::Vector, rusiuoti, tvarka);
+            Rezultatai rezultatai = testuPaleistuvas(i, rusiuoti, tvarka);
             visiVector.push_back(rezultatai);
-            std::cout << "Atliekamas testas su List.\n";
-            rezultatai = testuPaleistuvas(i, Struktura::List, rusiuoti, tvarka);
-            visiList.push_back(rezultatai);
         }
         std::string lentele = "lenteleVector.txt";
         spausdintiLentele(lentele, visiVector);
-        lentele = "lenteleList.txt";
-        spausdintiLentele(lentele, visiList);
         if (taipArNe("Ar trinti nuskriaustukų ir kietukų failus? ")) {
             for (int i = MINFAILAS; i <= MAXFAILAS; i *= 10) {
                 trintiFaila(failoPavadinimas("nuskriaustukai",i));
@@ -74,7 +63,7 @@ int main(int argc, char* argv[]) {
             }
         }
         if (taipArNe("Ar trinti kursiokų failus? ")) {
-            if (taipArNe("Ar tikrai???!!!")) {
+            if (taipArNe("Ar tikrai?!!!")) {
                 for (int i = MINFAILAS; i <= MAXFAILAS; i *= 10) {
                     trintiFaila(failoPavadinimas("kursiokai",i));
                 }
@@ -84,8 +73,6 @@ int main(int argc, char* argv[]) {
         return 0;
     }
 
-
-    auto struktura = static_cast<Struktura>(nustatymai("Į kokią C++ struktūrą vesti studentus?", "Vector;List"));
     auto isvedimas = static_cast<Isvedimas>(nustatymai("Kur išvesti studentų duomenis?", "Į konsolę;Į failą"));
     auto statistika =
     static_cast<Statistika>(nustatymai("Kokios statistikos pageidaujate?", "Vidurkio;Medianos;Abiejų"));
@@ -96,14 +83,10 @@ int main(int argc, char* argv[]) {
         arZinomasSk = true;
     }
     if (rezimas == Rezimas::Ranka or rezimas == Rezimas::Generavimas) {
-
         if (isvedimas == Isvedimas::Konsole) {
-            if (struktura == Struktura::List) {
-                ivestiRanka<std::list>(arZinomasSk, statistika, rezimas, std::cout, rusiuoti, tvarka);
-            } else {
-                ivestiRanka<std::vector>(arZinomasSk, statistika, rezimas, std::cout, rusiuoti, tvarka);
-            }
-        } else {
+            rankinisIvedimas(arZinomasSk, statistika, rezimas, std::cout, rusiuoti, tvarka);
+        }
+        else {
             std::string failoPavadinimas;
             std::cout << "Įveskite failo pavadinimą: ";
             std::cin >> failoPavadinimas;
@@ -113,25 +96,17 @@ int main(int argc, char* argv[]) {
                 std::cout << "Nepavyko atidaryti failo!\n";
                 return 0;
             }
-            if (struktura == Struktura::List) {
-                ivestiRanka<std::list>(arZinomasSk, statistika, rezimas, failas, rusiuoti, tvarka);
-            } else {
-                ivestiRanka<std::vector>(arZinomasSk, statistika, rezimas, failas, rusiuoti, tvarka);
-            }
+            rankinisIvedimas(arZinomasSk, statistika, rezimas, failas, rusiuoti, tvarka);
         }
-
     }
+
     if (rezimas == Rezimas::Failas) {
         std::string failoPavadinimas;
         std::cout << "Įveskite failo pavadinimą nuskaitymui: ";
         std::cin >> failoPavadinimas;
         if (isvedimas == Isvedimas::Konsole) {
             try {
-                if (struktura == Struktura::Vector) {
-                    nuskaitytiIsFailo<std::vector>(failoPavadinimas + ".txt",statistika,std::cout, rusiuoti, tvarka);
-                } else {
-                    nuskaitytiIsFailo<std::list>(failoPavadinimas + ".txt",statistika,std::cout, rusiuoti, tvarka);
-                }
+                nuskaitytiIsFailo(failoPavadinimas + ".txt",statistika,std::cout, rusiuoti, tvarka);
             }
             catch (std::exception& e) {
                 std::cout << "Failo nepavyko atdaryti: "<<e.what() << '\n';
@@ -147,18 +122,16 @@ int main(int argc, char* argv[]) {
                 return 0;
             }
             try {
-                if (struktura == Struktura::Vector) {
-                    nuskaitytiIsFailo<std::vector>(failoPavadinimas + ".txt",statistika,failas, rusiuoti, tvarka);
-                } else {
-                    nuskaitytiIsFailo<std::list>(failoPavadinimas + ".txt",statistika,failas, rusiuoti, tvarka);
-                }
+                nuskaitytiIsFailo(failoPavadinimas + ".txt",statistika,failas, rusiuoti, tvarka);
+
             }
             catch (std::exception& e) {
                 std::cout << "Failo nepavyko atdaryti: "<<e.what() << '\n';
             }
         }
     }
-
 }
+
+
 
 
