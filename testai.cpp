@@ -16,45 +16,50 @@ Rezultatai testuPaleistuvas(int i, const Rusiuoti& rusiuoti, const Tvarka& tvark
 }
 
 
-void testas(int i, int j, const std::string& pavadinimas, Rezultatai& rezultatai, Rusiuoti rusiuoti, Tvarka tvarka) {
-    std::vector<Studentas> grupe;
+void testas(int i, int j, const std::string& pavadinimas, Rezultatai& rezultatai,
+            Rusiuoti rusiuoti, Tvarka tvarka) {
+    std::vector<Studentas> grupe;          // after grouping: passing students (kietukai)
+    std::vector<Studentas> nuskriaustukai; // failing students
+
     Timer apdorojimas;
     Timer t;
+
     nuskaitytiStudentus(grupe, pavadinimas);
     rezultatai.nuskaitymai.push_back(t.elapsed());
     std::cout << "  Nuskaitymas: " << rezultatai.nuskaitymai[j] << " s\n";
 
     t.reset();
-    for (auto& st : grupe) {
-        st.skaiciuotiGalutini();
-    }
+    for (auto& st : grupe) st.skaiciuotiGalutini();
     rezultatai.galutiniai.push_back(t.elapsed());
     std::cout << "  Galutinių skaičiavimas: " << rezultatai.galutiniai[j] << " s\n";
 
-    std::vector<Studentas> nuskriaustukai;
     t.reset();
     skirstytiStudentus(grupe, nuskriaustukai);
     rezultatai.dalijimai.push_back(t.elapsed());
-    grupe.clear();
     std::cout << "  Dalijimas į dvi grupes: " << rezultatai.dalijimai[j] << " s\n";
 
-
+    t.reset();                              // this reset was missing
     rusiuotiStudentus(grupe, rusiuoti, tvarka);
     rusiuotiStudentus(nuskriaustukai, rusiuoti, tvarka);
     rezultatai.rusiavimai.push_back(t.elapsed());
     std::cout << "  Rūšiavimas: " << rezultatai.rusiavimai[j] << " s\n";
 
     t.reset();
-    std::ofstream outn(failoPavadinimas("nuskriaustukai", i));
-    rasytiGrupe( outn, nuskriaustukai, Statistika::Vidurkis);
+    {
+        std::ofstream outn(failoPavadinimas("nuskriaustukai", i));
+        rasytiGrupe(outn, nuskriaustukai, Statistika::Vidurkis);
+    }
     rezultatai.isvedimaiNuskriaustuku.push_back(t.elapsed());
     std::cout << "  Nuskriaustukų išvedimas: " << rezultatai.isvedimaiNuskriaustuku[j] << " s\n";
 
     t.reset();
-    std::ofstream outk(failoPavadinimas("kietukai", i));
-    rasytiGrupe( outk, nuskriaustukai, Statistika::Vidurkis);
+    {
+        std::ofstream outk(failoPavadinimas("kietukai", i));
+        rasytiGrupe(outk, grupe, Statistika::Vidurkis);
+    }
     rezultatai.isvedimaiKietuku.push_back(t.elapsed());
     std::cout << "  Kietukų išvedimas: " << rezultatai.isvedimaiKietuku[j] << " s\n";
+
     rezultatai.bendri.push_back(apdorojimas.elapsed());
     std::cout << "  Viso apdorojimas: " << rezultatai.bendri[j] << " s\n\n";
 }
