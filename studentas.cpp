@@ -23,12 +23,13 @@ std::istream& Studentas::skaitytiFaila(std::istream& is, int ndKiekis) {
 
     return is;
 }
-Studentas::Studentas(bool zinomas_sk, Rezimas rezimas,std::mt19937 gen, std::uniform_int_distribution<int> pazymiu_dist) {
+Studentas::Studentas(bool zinomas_sk, Rezimas rezimas,std::mt19937& gen, std::uniform_int_distribution<int>& pazymiu_dist) {
     ivestiRanka(zinomas_sk, rezimas, gen, pazymiu_dist);
 }
 
 
-void Studentas::ivestiRanka(bool zinomas_sk, Rezimas rezimas,std::mt19937 gen, std::uniform_int_distribution<int> pazymiu_dist) {
+void Studentas::ivestiRanka(bool zinomas_sk, Rezimas rezimas,std::mt19937& gen, std::uniform_int_distribution<int>& pazymiu_dist) {
+    paz_.clear();
     std::cout << "Įveskite vardą: ";
     std::cin >> vardas_;
     std::cout << "Įveskite pavardę: ";

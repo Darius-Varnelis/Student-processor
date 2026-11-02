@@ -23,21 +23,15 @@ private:
     double galutinis_{0};
 public:
     Studentas(std::istream &, int ndKiekis);
-    Studentas(bool zinomas_sk, Rezimas rezimas,std::mt19937 gen, std::uniform_int_distribution<int> pazymiu_dist);
+    Studentas(bool zinomas_sk, Rezimas rezimas,std::mt19937& gen, std::uniform_int_distribution<int>& pazymiu_dist);
     const std::string& vardas() const noexcept  { return vardas_; }
     const  std::string& pavarde() const noexcept { return pavarde_; }
     double galutinis() const noexcept { return galutinis_; }
     void skaiciuotiGalutini();
     std::istream& skaitytiFaila(std::istream&, int ndKiekis);
     std::ostream& rasytiStudenta(std::ostream&, Statistika) const;
-    void ivestiRanka(bool zinomas_sk, Rezimas rezimas,std::mt19937 gen, std::uniform_int_distribution<int> pazymiu_dist);
-
-    ~Studentas() {
-        vardas_.clear();
-        pavarde_.clear();
-        paz_.clear();
-        exam_ = 0; galutinis_ = 0;
-    };
+    void ivestiRanka(bool zinomas_sk, Rezimas rezimas,std::mt19937& gen, std::uniform_int_distribution<int>& pazymiu_dist);
+    
 };
 void nuskaitytiStudentus(std::vector<Studentas>& grupe, const std::string& filename);
 
