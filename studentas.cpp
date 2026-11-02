@@ -13,14 +13,14 @@ Studentas::Studentas(std::istream& is, int ndKiekis) {
     skaitytiFaila(is, ndKiekis);
 }
 std::istream& Studentas::skaitytiFaila(std::istream& is, int ndKiekis) {
+    valid_ = false;
     if (!(is >> vardas_ >> pavarde_)) return is;
-
-    paz_.resize(ndKiekis);
-    for (int i = 0; i < ndKiekis; ++i) {
-        is >> paz_[i];
+    paz_.assign(ndKiekis, 0);
+    for (int& p : paz_) {
+        if (!(is >> p) || p < MIN_PAZ || p > MAX_PAZ) return is;
     }
-    is >> exam_;
-
+    if (!(is >> exam_) || exam_ < MIN_PAZ || exam_ > MAX_PAZ) return is;
+    valid_ = true;
     return is;
 }
 Studentas::Studentas(bool zinomas_sk, Rezimas rezimas,std::mt19937& gen, std::uniform_int_distribution<int>& pazymiu_dist) {
@@ -130,20 +130,22 @@ void nuskaitytiStudentus(std::vector<Studentas>& grupe, const std::string& filen
     if (!ins) throw std::runtime_error("Nepavyko atidaryti failo " + filename);
 
     std::string eilute;
-    std::getline(ins, eilute);  // antraste
+    std::getline(ins, eilute);
     std::istringstream antraste(eilute);
     std::string zodis;
     int stulpeliu = 0;
-    while (antraste >> zodis)
-        stulpeliu++;
-    const int pazKiekis = std::max(stulpeliu - 3, 0);  // minus Vardas, Pavardė, Egzaminas
+    while (antraste >> zodis) stulpeliu++;
+    const int pazKiekis = std::max(stulpeliu - 3, 0);
 
-
-    while (true) {
-        Studentas st(ins, pazKiekis);
-
-        if (!ins) {
-            break;
+    int eilNr = 1;
+    while (std::getline(ins, eilute)) {
+        ++eilNr;
+        if (eilute.find_first_not_of(" \t\r") == std::string::npos) continue;
+        std::istringstream is(eilute);
+        Studentas st(is, pazKiekis);
+        if (!st.valid()) {
+            std::cerr << "Praleista netinkama eilutė " << eilNr << '\n';
+            continue;
         }
         grupe.push_back(std::move(st));
     }
