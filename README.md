@@ -124,7 +124,7 @@ Test system:
 - CPU: AMD Ryzen AI 9 HX 370 (12 cores / 24 threads)
 - RAM: 32 GB LPDDR5X
 - Storage: NVMe SSD
-- OS: Linux (CachyOS, kernel 7.3.0)
+- OS: Linux (CachyOS, kernel 7.3.3)
 - Compiler: GCC 16.2.1
 - Power: AC (plugged in), Balanced profile
 - Results: Average of 5 runs on pre-generated files
@@ -140,7 +140,7 @@ The difference in processing time between the Struct and Class version is neglig
 
 #### O1 vs O2 vs O3
 
-The results show that processing is once again quite similar between all the optimization flags. Optimization flags improve performance most, when a big part of the program relies on CPU heavy operations (sorting, looping-over many students), however the substantial majority of this program's runtime is comprised of I/O operations (specifically file reading) which are not sped up. The main difference that can be noticed is the increase in file size of the executable. Using the -O3 flag, the executable file size increase by 17%. This is caused by the aggressive in-lining performed by the -O3 optimizations.
+The results show that processing is once again quite similar between all the optimization flags. Optimization flags improve performance most, when a big part of the program relies on CPU heavy operations (sorting, looping-over many students), however the substantial majority of this program's runtime is comprised of I/O operations (specifically file reading) which are not sped up. The main difference that can be noticed is the increase in file size of the executable. Using the -O3 flag, the executable file size increase by 17%. This is caused by the aggressive optimization philosophy used by the -O3 optimization flag. It duplicates compiled code to save on CPU operations at the cost of increased executable size.
 
 ## Disclaimer
 The generation of the text files is likely to take a large amount of time (about 30 seconds) as well as a large amount of storage (about 5GB). Further processing of the files (5 runs for every file) takes about 9 minutes on the release build.
