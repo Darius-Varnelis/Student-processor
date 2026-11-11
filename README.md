@@ -15,7 +15,7 @@ cmake --build build --config Release
 The program reads and writes data files in its working directory, so run it from the folder where you want the generated files to be stored.
 
 ## Usage
-Upon running the compiled program, the user will be prompted with several options to decide the behavior of the program. 
+Upon running the compiled program, the user will be prompted with several options to decide the behavior of the program.
 
 ![](images/Screenshot_Options.png)
 
@@ -81,8 +81,8 @@ A small sample student file for testing the read-from-file mode.
 Upon running the app, users have the option to select a benchmarking mode. During the benchmarking mode the program randomly generates 5 files with varying amounts of students which will then be used to test the program's performance on analyzing them. Students are put in a failing group *(nuskriaustukai)* if their grade is lower than 5 and a passing group *(kietukai)* if their grade is 5 or greater.
 All steps are timed and repeated 5 times, the average time for each step is calculated and output to the console.
 
-The goal of the benchmark is to compare performance between the Struct and Class versions, as well as the performance of optimizer flags.
-Vector and List containers in this app and to decide which one fits the program better.
+The goal of the benchmark is to compare performance between the Vector and List containers in this app and to decide which one fits the program better.
+
 ![](images/Screenshot_Benchmark.png)
 
 ## Benchmark Results
@@ -124,7 +124,7 @@ Test system:
 - CPU: AMD Ryzen AI 9 HX 370 (12 cores / 24 threads)
 - RAM: 32 GB LPDDR5X
 - Storage: NVMe SSD
-- OS: Linux (CachyOS, kernel 7.3.3)
+- OS: Linux (CachyOS, kernel 7.3.0)
 - Compiler: GCC 16.2.1
 - Power: AC (plugged in), Balanced profile
 - Results: Average of 5 runs on pre-generated files
@@ -132,11 +132,15 @@ Test system:
 - Optimizations used: -O1, -O2, -O3
 - Sorted by final grade descending, after grouping
 
-### Benchmark Conlusions
+### Benchmark conclusions
 
-#### Struct vs Class
+#### Struct vs Class performance
 
+The difference in processing time between the Struct and Class version is negligible and within margin of error (1.65% difference on 10,000 students and 3.56% on 1,000,000 students). This is a result of C++ Struct and Class objects compiling into similar results, in contrast to other object oriented languages like Java where they compile completely differently. Performance loss could be expected when using polymorphism and virtual functions, however as they are not used here, performance does not suffer.
 
+#### O1 vs O2 vs O3
+
+The results show that processing is once again quite similar between all the optimization flags. Optimization flags improve performance most, when a big part of the program relies on CPU heavy operations (sorting, looping-over many students), however the substantial majority of this program's runtime is comprised of I/O operations (specifically file reading) which are not sped up. The main difference that can be noticed is the increase in file size of the executable. Using the -O3 flag, the executable file size increase by 17%. This is caused by the aggressive in-lining performed by the -O3 optimizations.
 
 ## Disclaimer
 The generation of the text files is likely to take a large amount of time (about 30 seconds) as well as a large amount of storage (about 5GB). Further processing of the files (5 runs for every file) takes about 9 minutes on the release build.
