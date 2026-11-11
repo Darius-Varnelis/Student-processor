@@ -23,6 +23,7 @@ private:
     double galutinis_{0};
     bool valid_{false};
 public:
+    Studentas() = default;
     Studentas(std::istream &, int ndKiekis);
     Studentas(bool zinomas_sk, Rezimas rezimas,std::mt19937& gen, std::uniform_int_distribution<int>& pazymiu_dist);
     const std::string& vardas() const noexcept  { return vardas_; }

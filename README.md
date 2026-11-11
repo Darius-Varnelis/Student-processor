@@ -100,6 +100,17 @@ The benchmark compares performance between the `struct` and `class` implementati
 
 ### Compiler Optimization Comparison (-O1, -O2, -O3)
 
+#### Struct vs Class Optimization Comparison (Speed & Executable Size)
+
+| Implementation | Optimization Flag | Executable Size | Processing Time (100,000) | Processing Time (1,000,000) |
+|---|---|---|---|---|
+| **Struct** | -O1 | 165.0 KiB | 0.236s | 2.581s |
+| **Struct** | -O2 | 158.0 KiB | 0.234s | 2.533s |
+| **Struct** | -O3 | 184.0 KiB | 0.240s | 2.484s |
+| **Class** | -O1 | 115.2 KiB | 0.239s | 2.622s |
+| **Class** | -O2 | 117.0 KiB | 0.260s | 2.542s |
+| **Class** | -O3 | 139.6 KiB | 0.244s | 2.574s |
+
 ##### -O1 (Executable size: 115.2 KiB)
 
 | Student count | Average file read time | Average final grade calculation time | Average sorting time | Average grouping time | Average failed student output time | Average passing student output time | Average processing time |
