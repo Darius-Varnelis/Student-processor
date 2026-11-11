@@ -37,8 +37,8 @@ int main() {
         static_cast<Tvarka>(nustatymai("Kokia tvarka rūšiuoti išvesties failus?", "Didėjimo;Mažėjimo"));
 
     if (rezimas == Rezimas::Benchmark) {
-        constexpr int MAXFAILAS = 10000000;
-        constexpr int MINFAILAS = 1000;
+        constexpr int MAXFAILAS = 1000000;
+        constexpr int MINFAILAS = 100000;
         if (!arFailaiEgzistuoja(MINFAILAS, MAXFAILAS) or taipArNe("Ar generuoti naujus failus?")) {
             Timer visasGeneravimas;
             for (int i = MINFAILAS; i <= MAXFAILAS; i *= 10) {
