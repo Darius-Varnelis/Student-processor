@@ -81,8 +81,8 @@ A small sample student file for testing the read-from-file mode.
 Upon running the app, users have the option to select a benchmarking mode. During the benchmarking mode the program randomly generates 5 files with varying amounts of students which will then be used to test the program's performance on analyzing them. Students are put in a failing group *(nuskriaustukai)* if their grade is lower than 5 and a passing group *(kietukai)* if their grade is 5 or greater.
 All steps are timed and repeated 5 times, the average time for each step is calculated and output to the console.
 
-The goal of the benchmark is to compare performance between the Vector and List containers in this app and to decide which one fits the program better.
-
+The goal of the benchmark is to compare performance between the Struct and Class versions, as well as the performance of optimizer flags.
+Vector and List containers in this app and to decide which one fits the program better.
 ![](images/Screenshot_Benchmark.png)
 
 ## Benchmark Results
@@ -124,49 +124,18 @@ Test system:
 - CPU: AMD Ryzen AI 9 HX 370 (12 cores / 24 threads)
 - RAM: 32 GB LPDDR5X
 - Storage: NVMe SSD
-- OS: Linux (CachyOS, kernel 7.3.0)
+- OS: Linux (CachyOS, kernel 7.3.3)
 - Compiler: GCC 16.2.1
 - Power: AC (plugged in), Balanced profile
 - Results: Average of 5 runs on pre-generated files
 - Files were generated once per build
-- Optimizations used: -01, -O2, -O3
+- Optimizations used: -O1, -O2, -O3
 - Sorted by final grade descending, after grouping
 
-### Grouping method comparison
-#### Speed
-With vector, Method 2 with partition was the fastest: 0.10 s for 10M students. It creates only one new container and only moves the failing students (about half of all students), while the passing ones stay in the original container. After `std::partition` the failing students are all at the end of grupe, so they are moved out with a single `insert`, which knows the number of elements in advance and allocates the new container only once, and removed with a single `erase`.
+### Benchmark Conlusions
 
-Method 2 (0.14 s with vector) moves the same students, but does it one at a time. Each failing student costs a move into nuskriaustukai, a move of the last element into the gap and deletion of the shell made from `pop_back()`, and nuskriaustukai has to reallocate as it grows. Nothing has to be done with the passing students, which still makes it faster than the methods that create two new containers.
+#### Struct vs Class
 
-Method 1 with partition (0.15 s with vector) moves every student into a new container, but bulk insert allocates each container only once. Since students are sorted after grouping, `std::partition` is used instead of `std::stable_partition` in both partition methods, as the order of students doesn't need to be kept.
-
-The Original method (0.20 s with vector) touches each student once and only moves pointers, without copying any string or grade data. However, it moves every student with `push_back`, so with vector both new containers have to reallocate repeatedly as they grow, moving the students again each time. This makes it about 2× slower than Method 2 with partition.
-
-With list the order is different. The Original method was the fastest (0.64 s), followed by Method 2 (0.80 s), while both partition methods were much slower (2.59 s and 3.62 s). With list there is no reallocation, so the main advantage of bulk insert is gone and `insert` still has to allocate a new node for every student. On top of that, `std::partition` has to swap students between nodes scattered all across memory, which makes it an extra full pass that the Original method doesn't need.
-
-Method 1 is the slowest with both containers: about 1.7× slower than the Original with vector (0.34 s) and 5.7× slower with list (3.67 s). Copying a student allocates new memory for its name, surname and grades, and with millions of students the time spent accumulates.
-
-#### Memory
-
-Method 1 needed the most memory, about 1 GB more than the other methods (+2235 MiB). After copying, every student exists twice: once in grupe and once in a new container. That confirms Method 1 is the most memory-inefficient.
-
-The Original method and Method 2 both used about +1214 MiB. Since moving transfers the existing strings and grade containers, the only new memory is for the Studentas objects themselves. However, both grow their new containers with `push_back`, so the vector capacity can end up larger than needed, and during reallocation the old and the new buffer exist at the same time.
-
-Both partition methods used the least memory (+542 MiB), less than half of the Original method. Bulk insert knows the number of elements in advance and allocates each container once, at just the needed size, so there is no reallocation.
-##### Conclusion
-
-With vector, Method 2 with partition is the best choice: it was the fastest and, together with Method 1 with partition, used the least memory, because it only moves about half of the students and allocates the new container once. With list, the Original method was the fastest, as the algorithms that help vector only add extra work for list. Method 1 is the worst choice on both counts, because copying duplicates all the data.
-
-#### Vector vs list
-
-The results show that `vector` is the better fit for this program. At 10,000,000 students the total processing time was 14.6s with Vector versus 81.5s with List, about 458% slower. The gap starts to show at 10,000 students and widens as the data grows.
-
-Reading the file and writing the results show the smallest relative difference between the containers (about 1.7x and 2.2x), because these steps are dominated by text parsing and disk I/O rather than by the container. The largest differences come from three steps:
-
-- Sorting showed the largest gap: at 10,000,000 students it took 1.2s with Vector and 14.5s with List, roughly 12x slower. Vector uses std::sort (introsort), which needs random-access iterators and works on elements stored next to each other in memory. List cannot use std::sort and relies on its own list::sort (merge sort) which is significantly slower. With List, sorting alone takes about 18% of the total processing time.
-- Final grade calculation was about 20x slower with List (0.06s vs 1.21s). The difference comes from memory layout: Vector stores its elements next to each other, while List elements are scattered all across memory, which makes it more difficult for the CPU to access.
-- Grouping was slower with List for every method. With the Original method the gap is the smallest (0.20s vs 0.64s, about 3x), but the methods using algorithms lose most of their advantage: Method 2 with partition was about 26x slower with List (0.10s vs 2.59s). The List versions could be improved by moving nodes between lists with splice, which needs no allocation or copying.
-In short, List's strengths (easy insertion and removal in the middle) are not used by this program, while its weaknesses affect every step that touches the container. Vector is therefore the better choice.
 
 
 ## Disclaimer
