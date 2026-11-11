@@ -87,36 +87,37 @@ The goal of the benchmark is to compare performance between the Vector and List 
 
 ## Benchmark Results
 
-### Vector
-|Student count|Average file read time|Average final grade calculation time|Average sorting time|Average grouping time (Original Method)|Average grouping time (Method 1)|Average grouping time (Method 2)|Average grouping time (Method 1 with partition)|Average grouping time (Method 2 with partition)|Average failed student output time|Average passing student output time|Average processing time|
-|---|---|---|---|---|---|---|---|---|---|---|---|
-|1000|0.002s|0.000s|0.000s|0.000s|0.000s|0.000s|0.000s|0.000s|0.000s|0.000s|0.003s|
-|10000|0.009s|0.000s|0.001s|0.000s|0.000s|0.000s|0.000s|0.000s|0.001s|0.001s|0.016s|
-|100000|0.065s|0.001s|0.010s|0.002s|0.002s|0.001s|0.002s|0.001s|0.009s|0.009s|0.122s|
-|1000000|0.629s|0.007s|0.103s|0.016s|0.032s|0.012s|0.015s|0.010s|0.138s|0.138s|1.473s|
-|10000000|6.210s|0.061s|1.167s|0.198s|0.338s|0.140s|0.148s|0.101s|1.486s|1.502s|14.602s|
+### Struct vs Class Comparison
 
+| Implementation | Student count | Average file read time | Average final grade calculation time | Average sorting time | Average grouping time | Average failed student output time | Average passing student output time | Average processing time |
+|---|---|---|---|---|---|---|---|---|
+| **Struct** | 100,000 | 0.164s | 0.001s | 0.027s | 0.002s | 0.022s | 0.023s | 0.240s |
+| **Class** | 100,000 | 0.164s | 0.001s | 0.028s | 0.003s | 0.024s | 0.024s | 0.244s |
+| **Struct** | 1,000,000 | 1.620s | 0.011s | 0.268s | 0.023s | 0.279s | 0.283s | 2.484s |
+| **Class** | 1,000,000 | 1.668s | 0.011s | 0.281s | 0.032s | 0.290s | 0.292s | 2.574s |
 
+### Compiler Optimization Comparison (-O1, -O2, -O3)
 
-### List
-|Student count|Average file read time|Average final grade calculation time|Average sorting time|Average grouping time (Original Method)|Average grouping time (Method 1)|Average grouping time (Method 2)|Average grouping time (Method 1 with partition)|Average grouping time (Method 2 with partition)|Average failed student output time|Average passing student output time|Average processing time|
-|---|---|---|---|---|---|---|---|---|---|---|---|
-|1000|0.001s|0.000s|0.000s|0.000s|0.000s|0.000s|0.000s|0.000s|0.000s|0.000s|0.004s|
-|10000|0.010s|0.001s|0.001s|0.000s|0.003s|0.000s|0.001s|0.001s|0.002s|0.002s|0.045s|
-|100000|0.072s|0.010s|0.024s|0.002s|0.035s|0.007s|0.026s|0.019s|0.013s|0.016s|0.499s|
-|1000000|0.727s|0.097s|0.587s|0.023s|0.350s|0.075s|0.298s|0.208s|0.242s|0.236s|5.688s|
-|10000000|10.545s|1.214s|14.490s|0.642s|3.674s|0.801s|3.616s|2.594s|3.277s|3.320s|81.475s|
+##### -O1 (Executable size: 115.2 KiB)
 
-### Memory usage when grouping 10,000,000 students (Vector)
-|Method|Peak memory used (MiB)|
-|---|---|
-|Original|1214 MiB|
-|Method 1|2235 MiB|
-|Method 2|1215 MiB|
-|Method 1 with partition|542 MiB|
-|Method 2 with partition|542 MiB|
+| Student count | Average file read time | Average final grade calculation time | Average sorting time | Average grouping time | Average failed student output time | Average passing student output time | Average processing time |
+|---|---|---|---|---|---|---|---|
+| 100,000 | 0.163s | 0.002s | 0.027s | 0.003s | 0.022s | 0.023s | 0.239s |
+| 1,000,000 | 1.678s | 0.016s | 0.287s | 0.026s | 0.305s | 0.310s | 2.622s |
 
+##### -O2 (Executable size: 117.0 KiB)
 
+| Student count | Average file read time | Average final grade calculation time | Average sorting time | Average grouping time | Average failed student output time | Average passing student output time | Average processing time |
+|---|---|---|---|---|---|---|---|
+| 100,000 | 0.172s | 0.001s | 0.032s | 0.003s | 0.027s | 0.024s | 0.260s |
+| 1,000,000 | 1.631s | 0.011s | 0.293s | 0.026s | 0.287s | 0.294s | 2.542s |
+
+##### -O3 (Executable size: 139.6 KiB)
+
+| Student count | Average file read time | Average final grade calculation time | Average sorting time | Average grouping time | Average failed student output time | Average passing student output time | Average processing time |
+|---|---|---|---|---|---|---|---|
+| 100,000 | 0.164s | 0.001s | 0.028s | 0.003s | 0.024s | 0.024s | 0.244s |
+| 1,000,000 | 1.668s | 0.011s | 0.281s | 0.032s | 0.290s | 0.292s | 2.574s |
 
 ### Testing Conditions
 Test system:
@@ -128,7 +129,7 @@ Test system:
 - Power: AC (plugged in), Balanced profile
 - Results: Average of 5 runs on pre-generated files
 - Files were generated once per build
-- Optimizations used: -O3 -DNDEBUG
+- Optimizations used: -01, -O2, -O3
 - Sorted by final grade descending, after grouping
 
 ### Grouping method comparison
