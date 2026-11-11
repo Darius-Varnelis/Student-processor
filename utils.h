@@ -1,5 +1,5 @@
-#ifndef OOP_PROJECT_UTILS_H
-#define OOP_PROJECT_UTILS_H
+#ifndef STUDENT_PROCESSOR_UTILS_H
+#define STUDENT_PROCESSOR_UTILS_H
 
 #include <algorithm>
 #include <limits>
@@ -43,4 +43,4 @@ double mediana(T paz) {
 size_t pikineAtmintis();
 size_t dabartineAtmintis();
 
-#endif  // OOP_PROJECT_UTILS_H
+#endif  // STUDENT_PROCESSOR_UTILS_H

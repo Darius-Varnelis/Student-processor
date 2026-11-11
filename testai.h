@@ -1,6 +1,6 @@
 
-#ifndef OOP_PROJECT_TESTAI_H
-#define OOP_PROJECT_TESTAI_H
+#ifndef STUDENT_PROCESSOR_TESTAI_H
+#define STUDENT_PROCESSOR_TESTAI_H
 #include <iostream>
 #include <string>
 
@@ -21,4 +21,4 @@ Rezultatai testuPaleistuvas(int i, const Rusiuoti& rusiuoti, const Tvarka& tvark
 int vienasTestas(const std::string& strategija, const std::string& failas);
 
 void paleistiAtmintiesTestus(const std::string& exe);
-#endif //OOP_PROJECT_TESTAI_H
+#endif //STUDENT_PROCESSOR_TESTAI_H

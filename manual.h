@@ -2,8 +2,8 @@
 // Created by Darc on 10/13/2026.
 //
 
-#ifndef OOP_PROJECT_MANUAL_H
-#define OOP_PROJECT_MANUAL_H
+#ifndef STUDENT_PROCESSOR_MANUAL_H
+#define STUDENT_PROCESSOR_MANUAL_H
 #include <chrono>
 #include <iomanip>
 #include <iostream>
@@ -35,4 +35,4 @@ void nuskaitytiIsFailo(const std::string& filename, Statistika statistika, std::
 
 int nustatymai(const std::string& klausimas, const std::string& pasirinkimai);
 
-#endif  // OOP_PROJECT_MANUAL_H
+#endif  // STUDENT_PROCESSOR_MANUAL_H

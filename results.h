@@ -1,6 +1,6 @@
 
-#ifndef OOP_PROJECT_RESULTS_H
-#define OOP_PROJECT_RESULTS_H
+#ifndef STUDENT_PROCESSOR_RESULTS_H
+#define STUDENT_PROCESSOR_RESULTS_H
 #include <string>
 #include <vector>
 
@@ -11,4 +11,4 @@ struct Rezultatai {
 };
 void spausdintiLentele(const std::string& filename, const std::vector<Rezultatai>& visi);
 
-#endif  // OOP_PROJECT_RESULTS_H
+#endif  // STUDENT_PROCESSOR_RESULTS_H

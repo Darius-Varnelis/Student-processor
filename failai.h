@@ -1,5 +1,5 @@
-#ifndef OOP_PROJECT_FAILAI_H
-#define OOP_PROJECT_FAILAI_H
+#ifndef STUDENT_PROCESSOR_FAILAI_H
+#define STUDENT_PROCESSOR_FAILAI_H
 
 #include <iomanip>
 #include <ios>
@@ -21,4 +21,4 @@ void trintiFaila(const std::string& fileName) ;
 
 bool arFailaiEgzistuoja(int min, int max);
 
-#endif  // OOP_PROJECT_FAILAI_H
+#endif  // STUDENT_PROCESSOR_FAILAI_H
