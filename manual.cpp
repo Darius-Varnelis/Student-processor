@@ -94,7 +94,7 @@ void rasytiGrupe(std::ostream& out, const std::vector<Studentas>& grupe, Statist
     }
 }
 
-void rankinisIvedimas(bool zinomas_sk, Statistika statistika, Rezimas rezimas, std::ostream& output, Rusiuoti rusiuoti, Tvarka tvarka) {
+void rankinisIvedimas(bool zinomas_sk, Statistika statistika, Rezimas rezimas, std::ostream& output, Rusiuoti rusiuoti, Tvarka tvarka, Statistika rusiavimoStatistika) {
     const auto seed = std::chrono::high_resolution_clock::now().time_since_epoch().count();
     std::mt19937 gen(static_cast<std::mt19937::result_type>(seed));
     std::uniform_int_distribution<int> pazymiu_dist(MIN_PAZ, MAX_PAZ);
@@ -108,16 +108,30 @@ void rankinisIvedimas(bool zinomas_sk, Statistika statistika, Rezimas rezimas, s
         }
         grupe.push_back(std::move(st));
     }
-    rusiuotiStudentus(grupe, rusiuoti, tvarka, statistika);
+    rusiuotiStudentus(grupe, rusiuoti, tvarka, rusiavimoStatistika);
     rasytiGrupe(output, grupe, statistika);
 }
 
-void nuskaitytiIsFailo(const std::string& filename, Statistika statistika, std::ostream& output, Rusiuoti rusiuoti, Tvarka tvarka) {
+std::vector<Studentas> apdorotiStudentus(const std::string& filename, Statistika statistika, Rusiuoti rusiuoti, Tvarka tvarka, Statistika rusiavimoStatistika) {
     std::vector<Studentas> grupe;
     nuskaitytiStudentus(grupe, filename);
     for (auto& st : grupe) {
         st.skaiciuotiGalutini(statistika);
     }
-    rusiuotiStudentus(grupe, rusiuoti, tvarka, statistika);
+    rusiuotiStudentus(grupe, rusiuoti, tvarka, rusiavimoStatistika);
+    return grupe;
+}
+
+void nuskaitytiIsFailo(const std::string& filename, Statistika statistika, std::ostream& output, Rusiuoti rusiuoti, Tvarka tvarka, Statistika rusiavimoStatistika) {
+    auto grupe = apdorotiStudentus(filename, statistika, rusiuoti, tvarka, rusiavimoStatistika);
     rasytiGrupe(output, grupe, statistika);
+}
+
+void apdorotiIsFailoIFaila(const std::string& inputFilename, const std::string& outputFilename, Statistika statistika, Rusiuoti rusiuoti, Tvarka tvarka, Statistika rusiavimoStatistika) {
+    auto grupe = apdorotiStudentus(inputFilename, statistika, rusiuoti, tvarka, rusiavimoStatistika);
+    std::ofstream failas(outputFilename);
+    if (!failas) {
+        throw std::runtime_error("Nepavyko sukurti išvesties failo: " + outputFilename);
+    }
+    rasytiGrupe(failas, grupe, statistika);
 }

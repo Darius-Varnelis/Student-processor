@@ -30,8 +30,11 @@ int ivestiSk(const std::string& klausimas, int nuo, int iki);
 bool taipArNe(const std::string& klausimas);
 bool iSkaiciu(const std::string& tekstas, int& rezultatas);
 
-void rankinisIvedimas(bool zinomas_sk, Statistika statistika, Rezimas rezimas, std::ostream& output, Rusiuoti rusiuoti, Tvarka tvarka);
-void nuskaitytiIsFailo(const std::string& filename, Statistika statistika, std::ostream& output, Rusiuoti rusiuoti, Tvarka tvarka);
+std::vector<Studentas> apdorotiStudentus(const std::string& filename, Statistika statistika, Rusiuoti rusiuoti, Tvarka tvarka, Statistika rusiavimoStatistika = Statistika::Vidurkis);
+
+void rankinisIvedimas(bool zinomas_sk, Statistika statistika, Rezimas rezimas, std::ostream& output, Rusiuoti rusiuoti, Tvarka tvarka, Statistika rusiavimoStatistika = Statistika::Vidurkis);
+void nuskaitytiIsFailo(const std::string& filename, Statistika statistika, std::ostream& output, Rusiuoti rusiuoti, Tvarka tvarka, Statistika rusiavimoStatistika = Statistika::Vidurkis);
+void apdorotiIsFailoIFaila(const std::string& inputFilename, const std::string& outputFilename, Statistika statistika, Rusiuoti rusiuoti, Tvarka tvarka, Statistika rusiavimoStatistika = Statistika::Vidurkis);
 
 int nustatymai(const std::string& klausimas, const std::string& pasirinkimai);
 

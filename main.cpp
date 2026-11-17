@@ -76,6 +76,20 @@ int main() {
     auto isvedimas = static_cast<Isvedimas>(nustatymai("Kur išvesti studentų duomenis?", "Į konsolę;Į failą"));
     auto statistika =
     static_cast<Statistika>(nustatymai("Kokios statistikos pageidaujate?", "Vidurkio;Medianos;Abiejų"));
+
+    Statistika rusiavimoStatistika = statistika;
+    if (statistika == Statistika::Abu) {
+        if (rusiuoti == Rusiuoti::Pazymi) {
+            std::cout << "\nPasirinkote rodyti abu balus (vidurkį ir medianą).\n";
+            rusiavimoStatistika = static_cast<Statistika>(nustatymai(
+                "Pagal kurį balą rūšiuoti studentus?",
+                "Pagal vidurkį;Pagal medianą"
+            ));
+        } else {
+            rusiavimoStatistika = Statistika::Vidurkis;
+        }
+    }
+
     bool arZinomasSk;
     if (rezimas == Rezimas::Ranka) {
         arZinomasSk = taipArNe("Ar žinomas namų darbų skaičius?");
@@ -84,7 +98,7 @@ int main() {
     }
     if (rezimas == Rezimas::Ranka or rezimas == Rezimas::Generavimas) {
         if (isvedimas == Isvedimas::Konsole) {
-            rankinisIvedimas(arZinomasSk, statistika, rezimas, std::cout, rusiuoti, tvarka);
+            rankinisIvedimas(arZinomasSk, statistika, rezimas, std::cout, rusiuoti, tvarka, rusiavimoStatistika);
         }
         else {
             std::string failoPavadinimas;
@@ -96,7 +110,7 @@ int main() {
                 std::cerr << "Nepavyko atidaryti failo!\n";
                 return 1;
             }
-            rankinisIvedimas(arZinomasSk, statistika, rezimas, failas, rusiuoti, tvarka);
+            rankinisIvedimas(arZinomasSk, statistika, rezimas, failas, rusiuoti, tvarka, rusiavimoStatistika);
         }
     }
 
@@ -104,44 +118,25 @@ int main() {
         std::string failoPavadinimas;
         std::cout << "Įveskite failo pavadinimą nuskaitymui: ";
         std::cin >> failoPavadinimas;
-        if (isvedimas == Isvedimas::Konsole) {
-            try {
-                nuskaitytiIsFailo(failoPavadinimas + ".txt", statistika, std::cout, rusiuoti, tvarka);
+        try {
+            if (isvedimas == Isvedimas::Konsole) {
+                nuskaitytiIsFailo(failoPavadinimas + ".txt", statistika, std::cout, rusiuoti, tvarka, rusiavimoStatistika);
             }
-            catch (const std::exception& e) {
-                std::cerr << "Failo nepavyko atidaryti: " << e.what() << '\n';
-                return 1;
-            }
-        }
-        else {
-            std::string outputPavadinimas;
-            std::cout << "Įveskite išvesties failo pavadinimą: ";
-            std::cin >> outputPavadinimas;
+            else {
+                std::string outputPavadinimas;
+                std::cout << "Įveskite išvesties failo pavadinimą: ";
+                std::cin >> outputPavadinimas;
 
-            if (outputPavadinimas == failoPavadinimas) {
-                std::cerr << "Išvesties failas negali sutapti su įvesties failu!\n";
-                return 1;
-            }
-
-            try {
-                std::vector<Studentas> grupe;
-                nuskaitytiStudentus(grupe, failoPavadinimas + ".txt");
-                for (auto& st : grupe) {
-                    st.skaiciuotiGalutini(statistika);
-                }
-                rusiuotiStudentus(grupe, rusiuoti, tvarka, statistika);
-
-                std::ofstream failas(outputPavadinimas + ".txt");
-                if (!failas) {
-                    std::cerr << "Nepavyko sukurti išvesties failo!\n";
+                if (outputPavadinimas == failoPavadinimas) {
+                    std::cerr << "Išvesties failas negali sutapti su įvesties failu!\n";
                     return 1;
                 }
-                rasytiGrupe(failas, grupe, statistika);
+                apdorotiIsFailoIFaila(failoPavadinimas + ".txt", outputPavadinimas + ".txt", statistika, rusiuoti, tvarka, rusiavimoStatistika);
             }
-            catch (const std::exception& e) {
-                std::cerr << "Failo nepavyko apdoroti: " << e.what() << '\n';
-                return 1;
-            }
+        }
+        catch (const std::exception& e) {
+            std::cerr << "Failo nepavyko apdoroti: " << e.what() << '\n';
+            return 1;
         }
     }
     return 0;

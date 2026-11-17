@@ -34,7 +34,6 @@ std::istream& Studentas::skaitytiFaila(std::istream& is, int ndKiekis) {
         return is;
     }
     valid_ = true;
-    skaiciuotiGalutini();
     return is;
 }
 Studentas::Studentas(bool zinomas_sk, Rezimas rezimas, std::mt19937& gen, std::uniform_int_distribution<int>& pazymiu_dist, Statistika statistika) {
@@ -132,7 +131,8 @@ bool comparePagalPavarde(const Studentas& a, const Studentas& b) {
     return a.pavarde() < b.pavarde();
 }
 bool comparePagalGalutini(const Studentas& a, const Studentas& b, Statistika s) {
-    return a.galutinis(s) < b.galutinis(s);
+    Statistika tikra = (s == Statistika::Mediana) ? Statistika::Mediana : Statistika::Vidurkis;
+    return a.galutinis(tikra) < b.galutinis(tikra);
 }
 
 void rusiuotiStudentus(std::vector<Studentas>& grupe, Rusiuoti r, Tvarka t, Statistika s) {
@@ -184,7 +184,8 @@ void nuskaitytiStudentus(std::vector<Studentas>& grupe, const std::string& filen
 }
 
 void skirstytiStudentus(std::vector<Studentas>& grupe, std::vector<Studentas>& nuskriaustukai, Statistika s) {
-    auto riba = std::partition(grupe.begin(), grupe.end(), [s](const auto& st) { return st.galutinis(s) >= ISLAIKYMO_RIBA; });
+    Statistika tikra = (s == Statistika::Mediana) ? Statistika::Mediana : Statistika::Vidurkis;
+    auto riba = std::partition(grupe.begin(), grupe.end(), [tikra](const auto& st) { return st.galutinis(tikra) >= ISLAIKYMO_RIBA; });
     nuskriaustukai.insert(nuskriaustukai.end(), std::make_move_iterator(riba), std::make_move_iterator(grupe.end()));
     grupe.erase(riba, grupe.end());
 }
