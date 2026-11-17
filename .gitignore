@@ -52,6 +52,10 @@ Makefile
 install_manifest.txt
 compile_commands.json
 
+# IDE
+.idea/
+cmake-build-*/
+
 # Temporary files
 *.tmp
 *.log

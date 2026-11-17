@@ -101,11 +101,14 @@ void rankinisIvedimas(bool zinomas_sk, Statistika statistika, Rezimas rezimas, s
     std::vector<Studentas> grupe;
     const int studkiekis = ivestiSk("Kiek yra studentų? ", 0, BE_RIBOS);
     for (int i = 0; i < studkiekis; i++) {
-        Studentas st(zinomas_sk, rezimas, gen, pazymiu_dist);
-        st.skaiciuotiGalutini();
-        grupe.push_back(st);
+        Studentas st(zinomas_sk, rezimas, gen, pazymiu_dist, statistika);
+        if (!st.valid()) {
+            std::cerr << "Įvestis nutraukta arba klaidinga. Sustabdoma.\n";
+            break;
+        }
+        grupe.push_back(std::move(st));
     }
-    rusiuotiStudentus(grupe,rusiuoti,tvarka);
+    rusiuotiStudentus(grupe, rusiuoti, tvarka, statistika);
     rasytiGrupe(output, grupe, statistika);
 }
 
@@ -113,8 +116,8 @@ void nuskaitytiIsFailo(const std::string& filename, Statistika statistika, std::
     std::vector<Studentas> grupe;
     nuskaitytiStudentus(grupe, filename);
     for (auto& st : grupe) {
-        st.skaiciuotiGalutini();
+        st.skaiciuotiGalutini(statistika);
     }
-    rusiuotiStudentus(grupe,rusiuoti,tvarka);
-    rasytiGrupe(output,grupe,statistika);
+    rusiuotiStudentus(grupe, rusiuoti, tvarka, statistika);
+    rasytiGrupe(output, grupe, statistika);
 }

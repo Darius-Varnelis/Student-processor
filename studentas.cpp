@@ -2,12 +2,21 @@
 // Created by darc on 02/11/2026.
 //
 #include "studentas.h"
-#include <random>
-#include <string>
-#include <iostream>
+
+#include <algorithm>
 #include <chrono>
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <limits>
+#include <random>
+#include <sstream>
+#include <stdexcept>
+#include <string>
+
 #include "manual.h"
 #include "nustatymai.h"
+#include "utils.h"
 
 Studentas::Studentas(std::istream& is, int ndKiekis) {
     skaitytiFaila(is, ndKiekis);
@@ -20,26 +29,34 @@ std::istream& Studentas::skaitytiFaila(std::istream& is, int ndKiekis) {
         if (!(is >> p) || p < MIN_PAZ || p > MAX_PAZ) return is;
     }
     if (!(is >> exam_) || exam_ < MIN_PAZ || exam_ > MAX_PAZ) return is;
+    std::string extra;
+    if (is >> extra) {
+        return is;
+    }
     valid_ = true;
+    skaiciuotiGalutini();
     return is;
 }
-Studentas::Studentas(bool zinomas_sk, Rezimas rezimas,std::mt19937& gen, std::uniform_int_distribution<int>& pazymiu_dist) {
-    ivestiRanka(zinomas_sk, rezimas, gen, pazymiu_dist);
+Studentas::Studentas(bool zinomas_sk, Rezimas rezimas, std::mt19937& gen, std::uniform_int_distribution<int>& pazymiu_dist, Statistika statistika) {
+    ivestiRanka(zinomas_sk, rezimas, gen, pazymiu_dist, statistika);
 }
 
 
-void Studentas::ivestiRanka(bool zinomas_sk, Rezimas rezimas,std::mt19937& gen, std::uniform_int_distribution<int>& pazymiu_dist) {
+void Studentas::ivestiRanka(bool zinomas_sk, Rezimas rezimas, std::mt19937& gen, std::uniform_int_distribution<int>& pazymiu_dist, Statistika statistika) {
+    valid_ = false;
     paz_.clear();
     std::cout << "Įveskite vardą: ";
-    std::cin >> vardas_;
+    if (!(std::cin >> vardas_)) return;
     std::cout << "Įveskite pavardę: ";
-    std::cin >> pavarde_;
+    if (!(std::cin >> pavarde_)) return;
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     if (zinomas_sk) {
         const int kiekis = ivestiSk("Kiek studentas turi pažymių? ", 1, BE_RIBOS);
+        if (std::cin.fail()) return;
         if (rezimas == Rezimas::Ranka) {
             for (int j = 1; j <= kiekis; j++) {
                 paz_.push_back(ivestiSk("Įveskite " + std::to_string(j) + "-ąjį pažymį: ", MIN_PAZ, MAX_PAZ));
+                if (std::cin.fail()) return;
                 std::cout << '\n';
             }
         } else {
@@ -71,15 +88,26 @@ void Studentas::ivestiRanka(bool zinomas_sk, Rezimas rezimas,std::mt19937& gen, 
         std::cout << "Atsitiktinis egzamino rezultatas: " << exam_ << '\n';
     } else {
         exam_ = ivestiSk("Įveskite egzamino rezultatą: ", MIN_PAZ, MAX_PAZ);
+        if (std::cin.fail()) return;
+    }
+    skaiciuotiGalutini(statistika);
+    valid_ = true;
+}
+
+void Studentas::skaiciuotiGalutini(Statistika s) {
+    if (paz_.empty()) {
+        galutinisVid_ = 0.6 * exam_;
+        galutinisMed_ = 0.6 * exam_;
+        return;
     }
 
-}
-void Studentas::skaiciuotiGalutini() {
-    if (paz_.empty()) {
-        galutinis_ = 0.6 * exam_;
-    }
-    else {
-        galutinis_ = 0.4 * vidurkis(paz_) + 0.6 * exam_;
+    if (s == Statistika::Vidurkis) {
+        galutinisVid_ = 0.4 * vidurkis(paz_) + 0.6 * exam_;
+    } else if (s == Statistika::Mediana) {
+        galutinisMed_ = 0.4 * mediana(paz_) + 0.6 * exam_;
+    } else { // Statistika::Abu
+        galutinisVid_ = 0.4 * vidurkis(paz_) + 0.6 * exam_;
+        galutinisMed_ = 0.4 * mediana(paz_) + 0.6 * exam_;
     }
 }
 
@@ -87,33 +115,32 @@ std::ostream& Studentas::rasytiStudenta(std::ostream& out, const Statistika stat
     out << std::left << std::setw(utf8Plotis(vardas_)) << vardas_ << "|";
     out << std::setw(utf8Plotis(pavarde_)) << pavarde_ << "|";
     if (statistika == Statistika::Vidurkis) {
-        out << std::setw(PLOTIS) << std::fixed << std::setprecision(2) << galutinis_ << "|\n";
+        out << std::setw(PLOTIS) << std::fixed << std::setprecision(2) << galutinisVid_ << "|\n";
     } else if (statistika == Statistika::Mediana) {
-        out << std::setw(PLOTIS) << std::fixed << std::setprecision(2) << 0.4 * mediana(paz_) + 0.6 * exam_
-            << "|\n";
+        out << std::setw(PLOTIS) << std::fixed << std::setprecision(2) << galutinisMed_ << "|\n";
     } else if (statistika == Statistika::Abu) {
-        out << std::setw(PLOTIS) << std::fixed << std::setprecision(2) << galutinis_ << "|" << std::setw(PLOTIS)
-            << 0.4 * mediana(paz_) + 0.6 * exam_ << "|\n";
+        out << std::setw(PLOTIS) << std::fixed << std::setprecision(2) << galutinisVid_ << "|" << std::setw(PLOTIS)
+            << galutinisMed_ << "|\n";
     }
     return out;
 }
 
 bool comparePagalVarda(const Studentas& a, const Studentas& b) {
     return a.vardas() < b.vardas();
-};
+}
 bool comparePagalPavarde(const Studentas& a, const Studentas& b) {
     return a.pavarde() < b.pavarde();
-};
-bool comparePagalGalutini(const Studentas& a, const Studentas& b) {
-    return a.galutinis() < b.galutinis();
-};
+}
+bool comparePagalGalutini(const Studentas& a, const Studentas& b, Statistika s) {
+    return a.galutinis(s) < b.galutinis(s);
+}
 
-void rusiuotiStudentus(std::vector<Studentas>& grupe, Rusiuoti r, Tvarka t) {
-    auto maziau = [r](const Studentas& a, const Studentas& b) {
+void rusiuotiStudentus(std::vector<Studentas>& grupe, Rusiuoti r, Tvarka t, Statistika s) {
+    auto maziau = [r, s](const Studentas& a, const Studentas& b) {
         switch (r) {
             case Rusiuoti::Varda:   return comparePagalVarda(a, b);
             case Rusiuoti::Pavarde: return comparePagalPavarde(a, b);
-            case Rusiuoti::Pazymi:  return comparePagalGalutini(a,b);
+            case Rusiuoti::Pazymi:  return comparePagalGalutini(a, b, s);
         }
         return false;
     };
@@ -122,7 +149,6 @@ void rusiuotiStudentus(std::vector<Studentas>& grupe, Rusiuoti r, Tvarka t) {
     };
 
     std::sort(grupe.begin(), grupe.end(), cmp);
-
 }
 
 void nuskaitytiStudentus(std::vector<Studentas>& grupe, const std::string& filename) {
@@ -130,12 +156,18 @@ void nuskaitytiStudentus(std::vector<Studentas>& grupe, const std::string& filen
     if (!ins) throw std::runtime_error("Nepavyko atidaryti failo " + filename);
 
     std::string eilute;
-    std::getline(ins, eilute);
+    if (!std::getline(ins, eilute)) {
+        throw std::runtime_error("Failas yra tuščias: " + filename);
+    }
     std::istringstream antraste(eilute);
+    std::vector<std::string> stulpeliai;
     std::string zodis;
-    int stulpeliu = 0;
-    while (antraste >> zodis) stulpeliu++;
-    const int pazKiekis = std::max(stulpeliu - 3, 0);
+    while (antraste >> zodis) stulpeliai.push_back(zodis);
+
+    if (stulpeliai.size() < 3) {
+        throw std::runtime_error("Netinkama failo antraštė (mažiau nei 3 stulpeliai) faile " + filename);
+    }
+    const int pazKiekis = static_cast<int>(stulpeliai.size()) - 3;
 
     int eilNr = 1;
     while (std::getline(ins, eilute)) {
@@ -151,8 +183,8 @@ void nuskaitytiStudentus(std::vector<Studentas>& grupe, const std::string& filen
     }
 }
 
-void skirstytiStudentus(std::vector<Studentas>& grupe, std::vector<Studentas>& nuskriaustukai) {
-    auto riba = std::partition(grupe.begin(), grupe.end(), [](const auto&st) { return st.galutinis() >= ISLAIKYMO_RIBA; });
+void skirstytiStudentus(std::vector<Studentas>& grupe, std::vector<Studentas>& nuskriaustukai, Statistika s) {
+    auto riba = std::partition(grupe.begin(), grupe.end(), [s](const auto& st) { return st.galutinis(s) >= ISLAIKYMO_RIBA; });
     nuskriaustukai.insert(nuskriaustukai.end(), std::make_move_iterator(riba), std::make_move_iterator(grupe.end()));
     grupe.erase(riba, grupe.end());
 }

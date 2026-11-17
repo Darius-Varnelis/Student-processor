@@ -15,12 +15,6 @@
 using std::string;
 using std::vector;
 
-void rasytiAntraste(std::ostream& out) {
-    out << std::left << std::setw(PLOTIS) << "Vardas" << "|";
-    out << std::setw(utf8Plotis("Pavardė")) << "Pavardė" << "|";
-    out << std::setw(PLOTIS) << "Galutinis" << "|\n";
-}
-
 string failoPavadinimas(const string& pradzia, const int& n) {
     return pradzia + std::to_string(n) + ".txt";
 }

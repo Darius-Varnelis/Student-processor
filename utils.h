@@ -30,15 +30,20 @@ template <typename T>
 double mediana(T paz) {
     if (paz.empty()) return 0.0;
 
-    if constexpr (std::is_same_v<T, std::list<typename T::value_type>>)
-        paz.sort();
-    else
-        std::sort(paz.begin(), paz.end());
-
     std::size_t n = paz.size();
-    auto mid = std::next(paz.begin(), n / 2);
-    if (n % 2 == 1) return *mid;
-    return (*std::prev(mid) + *mid) / 2.0;
+
+    if constexpr (std::is_same_v<T, std::list<typename T::value_type>>) {
+        paz.sort();
+        auto mid = std::next(paz.begin(), n / 2);
+        if (n % 2 == 1) return *mid;
+        return (*std::prev(mid) + *mid) / 2.0;
+    } else {
+        auto mid = paz.begin() + n / 2;
+        std::nth_element(paz.begin(), mid, paz.end());
+        if (n % 2 == 1) return *mid;
+        auto max_left = std::max_element(paz.begin(), mid);
+        return (*max_left + *mid) / 2.0;
+    }
 }
 size_t pikineAtmintis();
 size_t dabartineAtmintis();

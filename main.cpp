@@ -49,7 +49,6 @@ int main() {
             std::cout << "Visų failų generavimas užtruko: " << visasGeneravimas.elapsed() << " s\n\n";
         }
         std::vector<Rezultatai> visiVector;
-        std::vector<Rezultatai> visiList;
         for (int i = MINFAILAS; i <= MAXFAILAS; i *= 10) {
             std::cout << "Atliekamas testas su Vector.\n";
             Rezultatai rezultatai = testuPaleistuvas(i, rusiuoti, tvarka);
@@ -94,8 +93,8 @@ int main() {
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
             std::ofstream failas(failoPavadinimas + ".txt");
             if (!failas) {
-                std::cout << "Nepavyko atidaryti failo!\n";
-                return 0;
+                std::cerr << "Nepavyko atidaryti failo!\n";
+                return 1;
             }
             rankinisIvedimas(arZinomasSk, statistika, rezimas, failas, rusiuoti, tvarka);
         }
@@ -107,36 +106,45 @@ int main() {
         std::cin >> failoPavadinimas;
         if (isvedimas == Isvedimas::Konsole) {
             try {
-                nuskaitytiIsFailo(failoPavadinimas + ".txt",statistika,std::cout, rusiuoti, tvarka);
+                nuskaitytiIsFailo(failoPavadinimas + ".txt", statistika, std::cout, rusiuoti, tvarka);
             }
-            catch (std::exception& e) {
-                std::cout << "Failo nepavyko atdaryti: "<<e.what() << '\n';
+            catch (const std::exception& e) {
+                std::cerr << "Failo nepavyko atidaryti: " << e.what() << '\n';
+                return 1;
             }
         }
         else {
-
             std::string outputPavadinimas;
             std::cout << "Įveskite išvesties failo pavadinimą: ";
             std::cin >> outputPavadinimas;
 
             if (outputPavadinimas == failoPavadinimas) {
-                std::cout << "Išvesties failas negali sutapti su įvesties failu!\n";
-                return 0;
+                std::cerr << "Išvesties failas negali sutapti su įvesties failu!\n";
+                return 1;
             }
-            std::ofstream failas(outputPavadinimas + ".txt");
-            if (!failas) {
-                std::cout << "Nepavyko atidaryti failo!\n";
-                return 0;
-            }
-            try {
-                nuskaitytiIsFailo(failoPavadinimas + ".txt",statistika,failas, rusiuoti, tvarka);
 
+            try {
+                std::vector<Studentas> grupe;
+                nuskaitytiStudentus(grupe, failoPavadinimas + ".txt");
+                for (auto& st : grupe) {
+                    st.skaiciuotiGalutini(statistika);
+                }
+                rusiuotiStudentus(grupe, rusiuoti, tvarka, statistika);
+
+                std::ofstream failas(outputPavadinimas + ".txt");
+                if (!failas) {
+                    std::cerr << "Nepavyko sukurti išvesties failo!\n";
+                    return 1;
+                }
+                rasytiGrupe(failas, grupe, statistika);
             }
-            catch (std::exception& e) {
-                std::cout << "Failo nepavyko atdaryti: "<<e.what() << '\n';
+            catch (const std::exception& e) {
+                std::cerr << "Failo nepavyko apdoroti: " << e.what() << '\n';
+                return 1;
             }
         }
     }
+    return 0;
 }
 
 
