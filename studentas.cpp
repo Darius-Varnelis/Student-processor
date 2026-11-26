@@ -41,8 +41,7 @@ Studentas::Studentas(bool zinomas_sk, Rezimas rezimas, std::mt19937& gen, std::u
 }
 
 Studentas::Studentas(const Studentas& other)
-    : vardas_(other.vardas_),
-      pavarde_(other.pavarde_),
+    : Zmogus(other),
       paz_(other.paz_),
       exam_(other.exam_),
       galutinisVid_(other.galutinisVid_),
@@ -53,8 +52,7 @@ Studentas& Studentas::operator=(const Studentas& other) {
     if (this == &other) {
         return *this;
     }
-    vardas_ = other.vardas_;
-    pavarde_ = other.pavarde_;
+    Zmogus::operator=(other);
     paz_ = other.paz_;
     exam_ = other.exam_;
     galutinisVid_ = other.galutinisVid_;

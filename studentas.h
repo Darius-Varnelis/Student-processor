@@ -7,13 +7,13 @@
 #include <vector>
 
 #include "nustatymai.h"
+#include "zmogus.h"
 
 constexpr double ISLAIKYMO_RIBA = 5.0;
 
 
-class Studentas {
+class Studentas : public Zmogus {
 private:
-    std::string vardas_, pavarde_;
     std::vector<int> paz_;
     int exam_{0};
     double galutinisVid_{0.0};
@@ -23,8 +23,6 @@ public:
     Studentas() = default;
     Studentas(std::istream &, int ndKiekis);
     Studentas(bool zinomas_sk, Rezimas rezimas, std::mt19937& gen, std::uniform_int_distribution<int>& pazymiu_dist, Statistika statistika = Statistika::Vidurkis);
-    const std::string& vardas() const noexcept  { return vardas_; }
-    const std::string& pavarde() const noexcept { return pavarde_; }
     double galutinis(Statistika s = Statistika::Vidurkis) const noexcept {
         return (s == Statistika::Mediana) ? galutinisMed_ : galutinisVid_;
     }
@@ -34,9 +32,10 @@ public:
     void skaiciuotiGalutini(Statistika s = Statistika::Vidurkis);
     std::istream& skaitytiFaila(std::istream&, int ndKiekis);
     std::ostream& rasytiStudenta(std::ostream&, Statistika) const;
+    void spausdinti(std::ostream& out) const override { rasytiStudenta(out, Statistika::Vidurkis); }
     void ivestiRanka(bool zinomas_sk, Rezimas rezimas, std::mt19937& gen, std::uniform_int_distribution<int>& pazymiu_dist, Statistika statistika = Statistika::Vidurkis);
 
-    ~Studentas() {
+    ~Studentas() override {
         vardas_.clear();
         pavarde_.clear();
         paz_.clear();
