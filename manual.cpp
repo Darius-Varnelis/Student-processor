@@ -105,7 +105,12 @@ void rankinisIvedimas(bool zinomas_sk, Statistika statistika, Rezimas rezimas, s
     std::vector<Studentas> grupe;
     const int studkiekis = ivestiSk("Kiek yra studentų? ", 0, BE_RIBOS);
     for (int i = 0; i < studkiekis; i++) {
-        Studentas st(zinomas_sk, rezimas, gen, pazymiu_dist, statistika);
+        Studentas st;
+        if (rezimas == Rezimas::Ranka && !zinomas_sk) {
+            std::cin >> st;
+        } else {
+            st.ivestiRanka(zinomas_sk, rezimas, gen, pazymiu_dist, statistika);
+        }
         if (!st.valid()) {
             std::cerr << "Įvestis nutraukta arba klaidinga. Sustabdoma.\n";
             break;
