@@ -37,6 +37,5 @@ void nuskaitytiIsFailo(const std::string& filename, Statistika statistika, std::
 void apdorotiIsFailoIFaila(const std::string& inputFilename, const std::string& outputFilename, Statistika statistika, Rusiuoti rusiuoti, Tvarka tvarka, Statistika rusiavimoStatistika = Statistika::Vidurkis);
 
 int nustatymai(const std::string& klausimas, const std::string& pasirinkimai);
-void demonstracija();
 
 #endif  // STUDENT_PROCESSOR_MANUAL_H

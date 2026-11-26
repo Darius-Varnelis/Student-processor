@@ -11,6 +11,7 @@
 #include <windows.h>
 #endif
 
+#include "demonstracija.h"
 #include "failai.h"
 #include "nustatymai.h"
 #include "studentas.h"
