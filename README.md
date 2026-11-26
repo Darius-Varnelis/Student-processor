@@ -28,27 +28,33 @@ Final grade = 0.4 \cdot average\space or\space median + 0.6 \cdot exam
 The project is built using object-oriented principles, encapsulating student data and logic inside `class Studentas`. The program standardizes on `std::vector<Studentas>` as its primary container and utilizes modern C++ algorithms for optimal partitioning and sorting.
 
 ### main.cpp
-The program's entry point. It asks the user to choose a mode (manual entry, random generation, reading from a file, or benchmark), a sort field and order, an output target, and which statistic to show. It then dispatches to the corresponding processing functions.
+The program's entry point. It asks the user to choose a mode (manual entry, random generation, reading from a file, benchmark, or Rule of Three & I/O demonstration), a sort field and order, an output target, which statistic to display (and which statistic to sort by when displaying both). It then dispatches to the corresponding processing functions.
 
 ### studentas.h / studentas.cpp
-- `class Studentas`: encapsulates first name (`vardas_`), last name (`pavarde_`), homework grades (`paz_`), exam grade (`exam_`), final grade (`galutinis_`), and input validity (`valid_`) as private member variables.
-- Constructors & Destructor: parameterized constructors for stream-based reading (`skaitytiFaila()`) and interactive/random input (`ivestiRanka()`), copy/move constructors, copy/move assignment operators, and destructor.
+- `class Studentas`: encapsulates first name (`vardas_`), last name (`pavarde_`), homework grades (`paz_`), exam grade (`exam_`), final grades (`galutinisVid_`, `galutinisMed_`), and input validity (`valid_`) as private member variables.
+- Constructors, Destructor & Rule of Five:
+  - Default constructor, stream-reading constructor (`skaitytiFaila()`), and interactive/random input constructor (`ivestiRanka()`).
+  - Explicit copy constructor (`Studentas(const Studentas&)`) and copy assignment operator (`operator=(const Studentas&)` with self-assignment guard `this == &other`), custom destructor (`~Studentas()`), and defaulted move operations (`= default`).
+- Overloaded I/O Operators:
+  - `friend std::istream& operator>>(std::istream& is, Studentas& st)`: reads a student from `std::cin` interactively (unknown grade count) or parses a non-empty line from any `std::istream` / `std::ifstream` without needing a pre-known homework count.
+  - `friend std::ostream& operator<<(std::ostream& out, const Studentas& st)`: writes a formatted student row (using `Statistika::Vidurkis` by default) to `std::cout` or a file stream.
 - Member methods:
-  - `vardas()`, `pavarde()`, `galutinis()`, `valid()`: inline `const noexcept` getters.
-  - `skaiciuotiGalutini()`: calculates the final grade (0.4 × homework average + 0.6 × exam).
-  - `skaitytiFaila()`: reads and parses a student line from an input stream.
-  - `rasytiStudenta()`: formats and writes a student's data row to an output stream.
+  - `vardas()`, `pavarde()`, `galutinis()`, `galutinisVid()`, `galutinisMed()`, `valid()`: inline `const noexcept` getters.
+  - `skaiciuotiGalutini()`: calculates the final grade (0.4 × homework average/median + 0.6 × exam).
+  - `skaitytiFaila()`: reads and parses a student line with a known homework count from an input stream (kept for fast bulk file reading in benchmarks).
+  - `rasytiStudenta()`: formats and writes a student's data row to an output stream for the selected statistic.
   - `ivestiRanka()`: handles console input for manual and randomly generated student records.
 - `nuskaitytiStudentus()`: reads students from a specified file into a `std::vector<Studentas>`, dynamically determining the homework count from the header.
-- `rusiuotiStudentus()`: sorts the student vector by first name, last name, or final grade in ascending or descending order using `std::sort` with comparator helpers (`comparePagalVarda`, `comparePagalPavarde`, `comparePagalGalutini`).
+- `rusiuotiStudentus()`: sorts the student vector by first name, last name, or final grade (average or median) in ascending or descending order using `std::sort` with comparator helpers (`comparePagalVarda`, `comparePagalPavarde`, `comparePagalGalutini`).
 - `skirstytiStudentus()`: splits students into failing (*nuskriaustukai*, final grade < 5) and passing (*kietukai*, final grade ≥ 5) groups using `std::partition`, moving failing students into a separate vector via `std::make_move_iterator` and erasing them from the original vector.
 
 ### manual.h / manual.cpp
-Console interaction and interactive modes:
+Console interaction, interactive modes, and demonstration:
 - `nustatymai()`, `ivestiSk()`, `taipArNe()`, `iSkaiciu()`: menu prompts and validated numeric and boolean input.
-- `rankinisIvedimas()`: interactive student entry, with an option to generate grades randomly.
-- `nuskaitytiIsFailo()`: reads, processes, sorts, and outputs students from an existing file.
-- `rasytiAntraste()`, `rasytiGrupe()`: write formatted result tables to the console or an output file.
+- `rankinisIvedimas()`: interactive student entry (using `std::cin >> st` when the homework count is unknown) and random grade generation.
+- `nuskaitytiIsFailo()`, `apdorotiIsFailoIFaila()`: read, process, sort, and output students from an existing file to console or another file.
+- `rasytiAntraste()`, `rasytiGrupe()`: write formatted result tables to the console or an output file (using `out << st` for `Statistika::Vidurkis`).
+- `demonstracija()`: runs the Rule of Three (`Studentas(const Studentas&)`, `operator=`, self-assignment, `~Studentas()`) and overloaded `operator>>` / `operator<<` demonstration mode.
 
 ### failai.h / failai.cpp
 File I/O helpers:
@@ -160,7 +166,37 @@ The generation of the text files is likely to take a large amount of time (about
 
 ![](images/Screenshot_Sizes.png)
 
+## Rule of Three & Overloaded Operators (v1.2)
+
+### Rule of Three / Rule of Five in `class Studentas`
+
+| Method | Signature | Implementation | Purpose |
+|---|---|---|---|
+| Destructor | `~Studentas()` | Defined in [studentas.h](studentas.h) | Clears student strings/grades and resets numeric fields when an object leaves scope. |
+| Copy Constructor | `Studentas(const Studentas& other)` | Defined in [studentas.cpp](studentas.cpp) | Creates an independent copy of all member fields (`vardas_`, `pavarde_`, `paz_`, `exam_`, final grades, `valid_`). |
+| Copy Assignment | `Studentas& operator=(const Studentas& other)` | Defined in [studentas.cpp](studentas.cpp) | Copies member fields into an existing object with a self-assignment check (`if (this == &other) return *this;`). |
+| Move Constructor | `Studentas(Studentas&&) noexcept` | `= default` in [studentas.h](studentas.h) | Preserves fast move semantics in `std::vector`, `std::sort`, and `std::partition` when a custom destructor is present. |
+| Move Assignment | `Studentas& operator=(Studentas&&) noexcept` | `= default` in [studentas.h](studentas.h) | Preserves fast move assignment alongside the Rule of Three methods. |
+
+### Input & Output Handling
+
+| Operation | Channel | How it works |
+|---|---|---|
+| Manual input | Console (`std::cin >> st`) | `operator>>` detects `&is == &std::cin` and calls `ivestiRanka()` for interactive unknown-count grade entry, setting `failbit` if input is invalid. Known-count entry is handled directly via `ivestiRanka()`. |
+| Automatic generation | Console (`Rezimas::Generavimas`) | `ivestiRanka()` prompts for the grade count and fills `paz_` and `exam_` using `std::mt19937` and `std::uniform_int_distribution`. |
+| Stream / file input | `std::ifstream` / `std::istringstream` | `operator>>` reads a non-empty line, parses name, surname, variable-length grades, and exam, computes both final grades, and sets `failbit` on invalid data. Bulk file loading (`nuskaitytiStudentus()`) keeps `skaitytiFaila(is, ndKiekis)` to avoid extra allocations on 1,000,000-record benchmarks. |
+| Console output | `std::cout << st` | `operator<<` formats a single table row via `rasytiStudenta(out, Statistika::Vidurkis)`. |
+| File output | `std::ofstream << st` | Works identically to `std::cout << st` through `std::ostream&` (used by `rasytiGrupe()`, benchmark file writes in `testai.cpp`, and `demonstracija()`). |
+
+Selecting mode **`[4] - Demonstracija`** runs `demonstracija()` to walk through `operator>>`, `operator<<`, copy construction (and deep-copy independence), copy assignment (including self-assignment), destructor scope exit, and file I/O.
+
 ## Releases
+
+### [v1.2](https://github.com/Darius-Varnelis/Student-processor/releases/tag/v1.2)
+- Implemented explicit copy constructor and copy assignment operator (`operator=`) for `Studentas` in [studentas.cpp](studentas.cpp), completing the Rule of Three alongside `~Studentas()` (while keeping `= default` move operations).
+- Overloaded `operator>>` and `operator<<` as `friend` functions on `Studentas` to support console, stream, and file I/O, and integrated them into `rankinisIvedimas()`, `rasytiGrupe()`, and `testai.cpp`.
+- Added a dedicated `Demonstracija` mode (`[4]`) demonstrating the Rule of Three (copy construction, copy assignment, self-assignment, destructor) and `operator>>` / `operator<<` across console, stream, and file I/O.
+- Added an option to choose which final grade (`Vidurkis` or `Mediana`) to sort by when displaying both statistics.
 
 ### [v1.1](https://github.com/Darius-Varnelis/Student-processor/releases/tag/v1.1)
 - Migrated from `struct` to `class Studentas`, encapsulating student data with private members and inline `const noexcept` getters.
