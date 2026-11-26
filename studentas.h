@@ -45,8 +45,8 @@ public:
         galutinisMed_ = 0.0;
     };
 
-    Studentas(const Studentas&) = default;
-    Studentas& operator=(const Studentas&) = default;
+    Studentas(const Studentas& other);
+    Studentas& operator=(const Studentas& other);
     Studentas(Studentas&&) noexcept = default;
     Studentas& operator=(Studentas&&) noexcept = default;
 

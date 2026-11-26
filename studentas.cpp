@@ -40,6 +40,29 @@ Studentas::Studentas(bool zinomas_sk, Rezimas rezimas, std::mt19937& gen, std::u
     ivestiRanka(zinomas_sk, rezimas, gen, pazymiu_dist, statistika);
 }
 
+Studentas::Studentas(const Studentas& other)
+    : vardas_(other.vardas_),
+      pavarde_(other.pavarde_),
+      paz_(other.paz_),
+      exam_(other.exam_),
+      galutinisVid_(other.galutinisVid_),
+      galutinisMed_(other.galutinisMed_),
+      valid_(other.valid_) {}
+
+Studentas& Studentas::operator=(const Studentas& other) {
+    if (this == &other) {
+        return *this;
+    }
+    vardas_ = other.vardas_;
+    pavarde_ = other.pavarde_;
+    paz_ = other.paz_;
+    exam_ = other.exam_;
+    galutinisVid_ = other.galutinisVid_;
+    galutinisMed_ = other.galutinisMed_;
+    valid_ = other.valid_;
+    return *this;
+}
+
 
 void Studentas::ivestiRanka(bool zinomas_sk, Rezimas rezimas, std::mt19937& gen, std::uniform_int_distribution<int>& pazymiu_dist, Statistika statistika) {
     valid_ = false;

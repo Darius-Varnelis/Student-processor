@@ -29,7 +29,12 @@ int main() {
     std::cout << std::fixed << std::setprecision(3);
     auto rezimas = static_cast<Rezimas>(nustatymai(
         "Koks programos rėžimas?",
-        "Studentų įvedimas ranka;Studentų nuskaitymas iš failo;Automatinis generavimas;Programos greitumo testavimas;"));
+        "Studentų įvedimas ranka;Studentų nuskaitymas iš failo;Automatinis generavimas;Programos greitumo testavimas; Trijų metodų taisyklės demonstracija"));
+
+    if (rezimas == Rezimas::Demonstracija) {
+        demonstracija();
+        return 0;
+    }
 
     auto rusiuoti =
         static_cast<Rusiuoti>(nustatymai("Pagal ką rūšiuoti išvesties failus?", "Vardą;Pavardę;Galutinį balą"));
