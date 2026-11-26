@@ -25,36 +25,43 @@ Final grade = 0.4 \cdot average\space or\space median + 0.6 \cdot exam
 ```
 
 ## Structure
-The project is built using object-oriented principles, encapsulating student data and logic inside `class Studentas`. The program standardizes on `std::vector<Studentas>` as its primary container and utilizes modern C++ algorithms for optimal partitioning and sorting.
+The project is built using object-oriented principles, splitting person and student logic into an abstract base class (`class Zmogus`) and a derived class (`class Studentas`). The program standardizes on `std::vector<Studentas>` as its primary container and utilizes modern C++ algorithms for optimal partitioning and sorting.
 
 ### main.cpp
-The program's entry point. It asks the user to choose a mode (manual entry, random generation, reading from a file, benchmark, or Rule of Three & I/O demonstration), a sort field and order, an output target, which statistic to display (and which statistic to sort by when displaying both). It then dispatches to the corresponding processing functions.
+The program's entry point. It asks the user to choose a mode (manual entry, random generation, reading from a file, benchmark, or Rule of Three & inheritance demonstration), a sort field and order, an output target, which statistic to display (and which statistic to sort by when displaying both). It then dispatches to the corresponding processing functions.
+
+### zmogus.h
+- `class Zmogus`: abstract base class representing a person, holding `protected` first and last name members (`vardas_`, `pavarde_`), `protected` constructors/copy/move operations (preventing object slicing), `public` `virtual ~Zmogus()`, inline `const noexcept` getters (`vardas()`, `pavarde()`), and the pure virtual method `virtual void spausdinti(std::ostream& out) const = 0`.
+- Because `spausdinti()` is pure virtual, `Zmogus` cannot be instantiated directly (`std::is_abstract_v<Zmogus> == true`), only through derived classes such as `Studentas`.
 
 ### studentas.h / studentas.cpp
-- `class Studentas`: encapsulates first name (`vardas_`), last name (`pavarde_`), homework grades (`paz_`), exam grade (`exam_`), final grades (`galutinisVid_`, `galutinisMed_`), and input validity (`valid_`) as private member variables.
+- `class Studentas : public Zmogus`: derived from `Zmogus`, inheriting `vardas_`, `pavarde_`, `vardas()`, and `pavarde()`, and encapsulating homework grades (`paz_`), exam grade (`exam_`), final grades (`galutinisVid_`, `galutinisMed_`), and input validity (`valid_`) as private member variables.
 - Constructors, Destructor & Rule of Five:
   - Default constructor, stream-reading constructor (`skaitytiFaila()`), and interactive/random input constructor (`ivestiRanka()`).
-  - Explicit copy constructor (`Studentas(const Studentas&)`) and copy assignment operator (`operator=(const Studentas&)` with self-assignment guard `this == &other`), custom destructor (`~Studentas()`), and defaulted move operations (`= default`).
+  - Explicit copy constructor (`Studentas(const Studentas&)` calling `: Zmogus(other)`) and copy assignment operator (`operator=(const Studentas&)` calling `Zmogus::operator=(other)` with self-assignment guard `this == &other`), `~Studentas() override`, and defaulted move operations (`= default`).
 - Overloaded I/O Operators:
   - `friend std::istream& operator>>(std::istream& is, Studentas& st)`: reads a student from `std::cin` interactively (unknown grade count) or parses a non-empty line from any `std::istream` / `std::ifstream` without needing a pre-known homework count.
   - `friend std::ostream& operator<<(std::ostream& out, const Studentas& st)`: writes a formatted student row (using `Statistika::Vidurkis` by default) to `std::cout` or a file stream.
 - Member methods:
-  - `vardas()`, `pavarde()`, `galutinis()`, `galutinisVid()`, `galutinisMed()`, `valid()`: inline `const noexcept` getters.
+  - `galutinis()`, `galutinisVid()`, `galutinisMed()`, `valid()`: inline `const noexcept` getters.
   - `skaiciuotiGalutini()`: calculates the final grade (0.4 × homework average/median + 0.6 × exam).
   - `skaitytiFaila()`: reads and parses a student line with a known homework count from an input stream (kept for fast bulk file reading in benchmarks).
   - `rasytiStudenta()`: formats and writes a student's data row to an output stream for the selected statistic.
+  - `spausdinti()`: overrides `Zmogus::spausdinti()` to output the student using `rasytiStudenta(out, Statistika::Vidurkis)`.
   - `ivestiRanka()`: handles console input for manual and randomly generated student records.
 - `nuskaitytiStudentus()`: reads students from a specified file into a `std::vector<Studentas>`, dynamically determining the homework count from the header.
 - `rusiuotiStudentus()`: sorts the student vector by first name, last name, or final grade (average or median) in ascending or descending order using `std::sort` with comparator helpers (`comparePagalVarda`, `comparePagalPavarde`, `comparePagalGalutini`).
 - `skirstytiStudentus()`: splits students into failing (*nuskriaustukai*, final grade < 5) and passing (*kietukai*, final grade ≥ 5) groups using `std::partition`, moving failing students into a separate vector via `std::make_move_iterator` and erasing them from the original vector.
 
 ### manual.h / manual.cpp
-Console interaction, interactive modes, and demonstration:
+Console interaction and interactive modes:
 - `nustatymai()`, `ivestiSk()`, `taipArNe()`, `iSkaiciu()`: menu prompts and validated numeric and boolean input.
 - `rankinisIvedimas()`: interactive student entry (using `std::cin >> st` when the homework count is unknown) and random grade generation.
 - `nuskaitytiIsFailo()`, `apdorotiIsFailoIFaila()`: read, process, sort, and output students from an existing file to console or another file.
 - `rasytiAntraste()`, `rasytiGrupe()`: write formatted result tables to the console or an output file (using `out << st` for `Statistika::Vidurkis`).
-- `demonstracija()`: runs the Rule of Three (`Studentas(const Studentas&)`, `operator=`, self-assignment, `~Studentas()`) and overloaded `operator>>` / `operator<<` demonstration mode.
+
+### demonstracija.h / demonstracija.cpp
+- `demonstracija()`: runs the interactive/stream demonstration mode covering `operator>>`, `operator<<`, the Rule of Three (copy constructor, copy assignment, self-assignment, destructor), file I/O, compile-time/runtime checks that `Zmogus` is abstract (`std::is_abstract_v<Zmogus>`, `std::is_base_of_v<Zmogus, Studentas>`), and polymorphic printing via `std::unique_ptr<Zmogus>`.
 
 ### failai.h / failai.cpp
 File I/O helpers:
@@ -155,7 +162,7 @@ Test system:
 
 #### Struct vs Class performance
 
-The difference in processing time between the Struct and Class version is negligible and within margin of error (1.65% difference on 10,000 students and 3.56% on 1,000,000 students). This is a result of C++ Struct and Class objects compiling into similar results, in contrast to other object oriented languages like Java where they compile completely differently. Performance loss could be expected when using polymorphism and virtual functions, however as they are not used here, performance does not suffer.
+The difference in processing time between the Struct and Class version is negligible and within margin of error (1.65% difference on 10,000 students and 3.56% on 1,000,000 students). This is a result of C++ Struct and Class objects compiling into similar results, in contrast to other object-oriented languages like Java where they compile completely differently. Performance loss could be expected when using polymorphism and virtual functions, however as they are not used here, performance does not suffer.
 
 #### O1 vs O2 vs O3
 
@@ -188,9 +195,36 @@ The generation of the text files is likely to take a large amount of time (about
 | Console output | `std::cout << st` | `operator<<` formats a single table row via `rasytiStudenta(out, Statistika::Vidurkis)`. |
 | File output | `std::ofstream << st` | Works identically to `std::cout << st` through `std::ostream&` (used by `rasytiGrupe()`, benchmark file writes in `testai.cpp`, and `demonstracija()`). |
 
-Selecting mode **`[4] - Demonstracija`** runs `demonstracija()` to walk through `operator>>`, `operator<<`, copy construction (and deep-copy independence), copy assignment (including self-assignment), destructor scope exit, and file I/O.
+Selecting mode **`[4] - Trijų metodų taisyklės, klasių paveldėjimo demonstracija`** runs `demonstracija()` to walk through `operator>>`, `operator<<`, copy construction (and deep-copy independence), copy assignment (including self-assignment), destructor scope exit, file I/O, and abstract class inheritance.
+
+## Abstract Base Class & Inheritance (v1.5)
+
+### `Zmogus` vs `Studentas`
+
+| Aspect | `class Zmogus` (Abstract Base) | `class Studentas : public Zmogus` (Derived) |
+|---|---|---|
+| Members | `protected`: `vardas_`, `pavarde_` | `private`: `paz_`, `exam_`, `galutinisVid_`, `galutinisMed_`, `valid_` (inherits `vardas_`, `pavarde_`) |
+| Getters | `vardas()`, `pavarde()` | Inherits `vardas()`, `pavarde()`; adds `galutinis()`, `galutinisVid()`, `galutinisMed()`, `valid()` |
+| Destructor | `virtual ~Zmogus() = default;` | `~Studentas() override` |
+| Copy / Move | `protected` `= default` (prevents slicing) | Explicit copy constructor (`: Zmogus(other)`) and copy `operator=` (`Zmogus::operator=(other)`); `= default` move operations |
+| Virtual method | `virtual void spausdinti(std::ostream& out) const = 0;` | `void spausdinti(std::ostream& out) const override` |
+| Instantiation | Disallowed (`std::is_abstract_v<Zmogus> == true`) | Allowed (`std::is_abstract_v<Studentas> == false`) |
+
+Attempting to instantiate `Zmogus` directly is rejected at compile time:
+
+![](images/Screenshot_Abstract.png)
+
+Running mode `[4]` demonstrates the Rule of Three, stream/file I/O, compile-time trait verification, and polymorphic printing through `std::unique_ptr<Zmogus>`:
+
+![](images/Screenshot_Demonstration.png)
 
 ## Releases
+
+### [v1.5](https://github.com/Darius-Varnelis/Student-processor/releases/tag/v1.5)
+- Added abstract base class `Zmogus` in [zmogus.h](zmogus.h) with `protected` name fields, `virtual ~Zmogus()`, inherited getters, and pure virtual `spausdinti()`.
+- Derived `Studentas` from `Zmogus` (`class Studentas : public Zmogus`) while preserving the v1.2 Rule of Three (delegating to `Zmogus(other)` and `Zmogus::operator=(other)`), move semantics, and overloaded `operator>>` / `operator<<` behavior.
+- Moved `demonstracija()` into [demonstracija.h](demonstracija.h) / [demonstracija.cpp](demonstracija.cpp) and extended it to verify `std::is_abstract_v<Zmogus>`, `std::is_base_of_v<Zmogus, Studentas>`, and polymorphic printing through `std::unique_ptr<Zmogus>`.
+- Updated [README.md](README.md) with inheritance tables and demonstration screenshots.
 
 ### [v1.2](https://github.com/Darius-Varnelis/Student-processor/releases/tag/v1.2)
 - Implemented explicit copy constructor and copy assignment operator (`operator=`) for `Studentas` in [studentas.cpp](studentas.cpp), completing the Rule of Three alongside `~Studentas()` (while keeping `= default` move operations).
