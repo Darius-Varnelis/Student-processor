@@ -6,7 +6,9 @@
 #include "studentas.h"
 #include "utils.h"
 #include <iostream>
+#include <memory>
 #include <sstream>
+#include <type_traits>
 using std::string;
 
 void rasytiAntraste(std::ostream& out, Statistika statistika) {
@@ -218,4 +220,18 @@ void demonstracija() {
             std::cout << st;
         }
     }
+
+    std::cout << "\n6. Abstrakti bazinė klasė Zmogus ir paveldėjimas (Studentas : public Zmogus):\n";
+    static_assert(std::is_abstract_v<Zmogus>, "Zmogus turi būti abstrakti klasė");
+    static_assert(std::is_base_of_v<Zmogus, Studentas>, "Studentas turi paveldėti iš Zmogus");
+    // Zmogus z; // Negalima: kompiliatoriaus klaida "cannot declare variable 'z' to be of abstract type 'Zmogus'"
+
+    std::cout << "  std::is_abstract_v<Zmogus>: " << std::boolalpha << std::is_abstract_v<Zmogus> << '\n';
+    std::cout << "  std::is_abstract_v<Studentas>: " << std::is_abstract_v<Studentas> << '\n';
+    std::cout << "  std::is_base_of_v<Zmogus, Studentas>: " << std::is_base_of_v<Zmogus, Studentas> << '\n';
+
+    std::unique_ptr<Zmogus> zmogusPtr = std::make_unique<Studentas>(a);
+    std::cout << "Polimorfinis spausdinimas per Zmogus* (zmogusPtr->spausdinti(std::cout)):\n";
+    rasytiAntraste(std::cout, Statistika::Vidurkis);
+    zmogusPtr->spausdinti(std::cout);
 }
