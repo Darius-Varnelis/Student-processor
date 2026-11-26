@@ -20,6 +20,7 @@ add_executable(Student-Processor
         testai.cpp
         testai.h
         studentas.cpp
+        zmogus.h
 )
 
 if(WIN32)
