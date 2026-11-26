@@ -90,7 +90,7 @@ int nustatymai(const string& klausimas, const string& pasirinkimai) {
 void rasytiGrupe(std::ostream& out, const std::vector<Studentas>& grupe, Statistika statistika) {
     rasytiAntraste(out, statistika);
     for (const auto& st : grupe) {
-        if (statistika == Statistika::Abu) {
+        if (statistika == Statistika::Vidurkis) {
             out << st;
         } else {
             st.rasytiStudenta(out, statistika);

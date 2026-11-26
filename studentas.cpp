@@ -180,7 +180,7 @@ std::istream& operator>>(std::istream& is, Studentas& st) {
 }
 
 std::ostream& operator<<(std::ostream& out, const Studentas& st) {
-    return st.rasytiStudenta(out, Statistika::Abu);
+    return st.rasytiStudenta(out, Statistika::Vidurkis);
 }
 
 bool comparePagalVarda(const Studentas& a, const Studentas& b) {
