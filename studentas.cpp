@@ -124,6 +124,65 @@ std::ostream& Studentas::rasytiStudenta(std::ostream& out, const Statistika stat
     return out;
 }
 
+std::istream& operator>>(std::istream& is, Studentas& st) {
+    if (&is == &std::cin) {
+        static std::mt19937 gen(static_cast<std::mt19937::result_type>(
+            std::chrono::high_resolution_clock::now().time_since_epoch().count()));
+        static std::uniform_int_distribution<int> pazymiu_dist(MIN_PAZ, MAX_PAZ);
+        st.ivestiRanka(false, Rezimas::Ranka, gen, pazymiu_dist, Statistika::Abu);
+        if (!st.valid_) {
+            is.setstate(std::ios::failbit);
+        }
+        return is;
+    }
+
+    st.valid_ = false;
+    st.paz_.clear();
+    st.exam_ = 0;
+    st.galutinisVid_ = 0.0;
+    st.galutinisMed_ = 0.0;
+
+    std::string eilute;
+    while (std::getline(is, eilute)) {
+        if (eilute.find_first_not_of(" \t\r") != std::string::npos) {
+            break;
+        }
+    }
+    if (!is) return is;
+
+    std::istringstream eilutesSrautas(eilute);
+    if (!(eilutesSrautas >> st.vardas_ >> st.pavarde_)) {
+        is.setstate(std::ios::failbit);
+        return is;
+    }
+
+    std::vector<int> ivestiPazymiai;
+    int pazymys;
+    while (eilutesSrautas >> pazymys) {
+        if (pazymys < MIN_PAZ || pazymys > MAX_PAZ) {
+            is.setstate(std::ios::failbit);
+            return is;
+        }
+        ivestiPazymiai.push_back(pazymys);
+    }
+
+    if (!eilutesSrautas.eof() || ivestiPazymiai.empty()) {
+        is.setstate(std::ios::failbit);
+        return is;
+    }
+
+    st.exam_ = ivestiPazymiai.back();
+    ivestiPazymiai.pop_back();
+    st.paz_ = std::move(ivestiPazymiai);
+    st.skaiciuotiGalutini(Statistika::Abu);
+    st.valid_ = true;
+    return is;
+}
+
+std::ostream& operator<<(std::ostream& out, const Studentas& st) {
+    return st.rasytiStudenta(out, Statistika::Abu);
+}
+
 bool comparePagalVarda(const Studentas& a, const Studentas& b) {
     return a.vardas() < b.vardas();
 }

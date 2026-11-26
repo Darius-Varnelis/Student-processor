@@ -49,6 +49,9 @@ public:
     Studentas& operator=(const Studentas&) = default;
     Studentas(Studentas&&) noexcept = default;
     Studentas& operator=(Studentas&&) noexcept = default;
+
+    friend std::istream& operator>>(std::istream& is, Studentas& st);
+    friend std::ostream& operator<<(std::ostream& out, const Studentas& st);
 };
 void nuskaitytiStudentus(std::vector<Studentas>& grupe, const std::string& filename);
 
